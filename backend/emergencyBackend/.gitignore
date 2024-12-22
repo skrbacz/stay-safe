@@ -1,6 +1,6 @@
 .idea
 .DS_Store
-myenv/
+../myenv/
 emergencyBackend/emergency_app/__pycache__/
 emergencyBackend/emergency_backend/__pycache__/
 *.pyc
