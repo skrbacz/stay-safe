@@ -75,4 +75,4 @@ class User(AbstractBaseUser):
     REQUIRED_FIELDS = ['username']
 
     def __str__(self):
-        return self.emailt
+        return self.email
