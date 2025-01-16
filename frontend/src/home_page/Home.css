@@ -76,7 +76,7 @@ body {
 
 .footer-icon {
     position: absolute;
-    margin-top: 54em;
+    margin-top: 52em;
     width: 25em;
     height: 25em;
     background-size: contain;
@@ -101,7 +101,7 @@ body {
     top: 0;
     right: 0;
     width: 250px;
-    height: 30%;
+    height: 280px;
     background-color: white;
     box-shadow: -2px 0 5px rgba(0, 0, 0, 0.2);
     z-index: 1000;
@@ -181,4 +181,5 @@ body {
 
 .logout-btn:hover {
     background-color: #B9FF66;
+    color: #000000;
 }

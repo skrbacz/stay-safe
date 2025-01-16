@@ -52,7 +52,7 @@ const Home = () => {
             <div className="info-container">
                 <h2>What’s new? <br /> Stay informed.</h2>
                 <p>
-                    Click <span>here</span> to add a county you want to follow.
+                    Click <span>here</span> to add a district you want to follow.
                 </p>
             </div>
 
