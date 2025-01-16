@@ -1,0 +1,85 @@
+body {
+    margin: 0;
+    font-family: monospace;
+    background-color: #f5f5f5;
+}
+
+.home-container {
+    width: 390px;
+    height: 844px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #ffffff;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    background-color: #B9FF66; /* Neon green */
+    padding: 10px 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.logo {
+    height: 30px;
+    display: block;
+    margin-left: 1.2em;
+}
+
+.menu-icon {
+    font-size: 2.5em;
+    color: black;
+    cursor: pointer;
+    margin-right: 0.5em;
+}
+
+.info-container {
+    width: 85%;
+    background-color: #f1f1f1;
+    border: 1px solid black;
+    margin: 50px 50px;
+    padding: 20px;
+    text-align: center;
+    height:55%;
+}
+
+.info-container h2 {
+    font-size: 1.5em;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: black;
+    line-height: 1.2em;
+    text-align: left;
+}
+
+.info-container p {
+    margin-top: 3em;
+    font-size: 1.2em;
+    color: black;
+    padding: 1em;
+}
+
+.info-container span {
+    font-weight: bold;
+    color: #000000;
+    cursor: pointer;
+}
+.info-container span:hover {
+    text-decoration: underline;
+}
+
+.footer-icon {
+    position: absolute;
+    margin-top: 54em;
+    width: 25em;
+    height: 25em;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
