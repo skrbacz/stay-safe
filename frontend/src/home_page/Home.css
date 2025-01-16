@@ -44,35 +44,58 @@ body {
     border: 1px solid black;
     margin: 50px 50px;
     padding: 20px;
-    text-align: center;
     height: 55%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; 
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: #B9FF66 #f1f1f1;
 }
 
 .info-container h2 {
     font-size: 1.5em;
     font-weight: bold;
-    margin-bottom: 10px;
+    margin-bottom: 20px; 
     color: black;
     line-height: 1.2em;
     text-align: left;
 }
 
-.info-container p {
-    margin-top: 3em;
+.info-item {
+    margin-bottom: 20px; 
+    padding-left: 5px;
     font-size: 1.2em;
+    line-height: 1.5;
+    width: 90%; 
     color: black;
-    padding: 1em;
 }
 
-.info-container span {
+.info-item span {
     font-weight: bold;
     color: #000000;
     cursor: pointer;
 }
 
-.info-container span:hover {
+.info-item span:hover {
     text-decoration: underline;
 }
+
+/* Scrollbar customization */
+.info-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.info-container::-webkit-scrollbar-thumb {
+    background-color: #B9FF66;
+    border-radius: 10px;
+}
+
+.info-container::-webkit-scrollbar-track {
+    background-color: #f1f1f1;
+}
+
 
 .footer-icon {
     position: absolute;
