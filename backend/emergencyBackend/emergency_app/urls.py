@@ -13,7 +13,8 @@ urlpatterns = [
     path('natural_disaster/', views.get_all_natural_disasters, name='get_all_natural_disasters'),
     path('natural_disaster/create', views.post_natural_disaster, name='post_natural_disaster'),
     path('natural_disaster/delete/<str:name>/', views.delete_natural_disaster, name='delete_natural_disaster'),
-
+    path('user/update/districts', views.update_users_districts, name='update_users_districts'),
+    path('district/create', views.post_district, name='post_district'),
 ]
 
 if settings.DEBUG:

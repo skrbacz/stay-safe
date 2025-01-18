@@ -2,7 +2,7 @@ import re
 
 from django.contrib.auth import authenticate
 from rest_framework import serializers
-from emergency_app.models import NaturalDisasterModel, User
+from emergency_app.models import NaturalDisasterModel, User, District
 
 
 class NaturalDisasterSerializer(serializers.ModelSerializer):
@@ -50,3 +50,13 @@ class RegisterSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Password must contain at least one special character.")
 
         return data
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = '__all__'
+
+class DistrictSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = District
+        fields = '__all__'
