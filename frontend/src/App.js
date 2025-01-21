@@ -4,6 +4,7 @@ import Login from "./login_page/Login";
 import Landing from "./landing_page/landing.js";
 import HomePage from "./home_page/Home.js";
 import Disaster from "./disaster_page/Disaster.js";
+import Register from "./register_page/Register.js";
 
 const App = () => {
   return (
@@ -13,6 +14,7 @@ const App = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/home" element={<HomePage/>}/>
         <Route path= "/disaster" element={<Disaster/>}/>
+        <Route path= "register" element= {<Register/>}/>
       </Routes>
     </Router>
   );

@@ -71,80 +71,82 @@ const Home = () => {
   };
 
   return (
-    <div className="home-container">
-      <header className="header">
-        <img src={logoWithName} alt="Logo with Name" className="logo" />
-        <MenuOutlinedIcon className="menu-icon" onClick={toggleMenu} />
-      </header>
+    <div className="app-container">
+      <div className="home-container">
+        <header className="header">
+          <img src={logoWithName} alt="Logo with Name" className="logo" />
+          <MenuOutlinedIcon className="menu-icon" onClick={toggleMenu} />
+        </header>
 
-      <div className="info-container">
-        <h2>
-          What’s new? <br /> Stay informed.
-        </h2>
+        <div className="info-container">
+          <h2>
+            What’s new? <br /> Stay informed.
+          </h2>
 
-        {districts && districts.length > 0 ? (
-          districts.map((district, index) => (
-            <div
-              key={index}
-              className="info-item"
-              onClick={() => handleDisasterClick(district.disaster_name)}
-            >
-              <h3>
-                {district.name}: {district.disaster_name}
-              </h3>
+          {districts && districts.length > 0 ? (
+            districts.map((district, index) => (
+              <div
+                key={index}
+                className="info-item"
+                onClick={() => handleDisasterClick(district.disaster_name)}
+              >
+                <h3>
+                  {district.name}: {district.disaster_name}
+                </h3>
+                <p>
+                  Click <span>here</span> to see how to make sure you stay safe.
+                </p>
+              </div>
+            ))
+          ) : (
+            <div className="info-item">
               <p>
-                Click <span>here</span> to see how to make sure you stay safe.
+                Click <span>here</span> to add a district you want to follow.
               </p>
             </div>
-          ))
-        ) : (
-          <div className="info-item">
-            <p>
-              Click <span>here</span> to add a district you want to follow.
-            </p>
-          </div>
-        )}
-      </div>
-
-      <img src={illustration} alt="Footer Icon" className="footer-icon" />
-
-      {menuOpen && <div className="menu-overlay" onClick={toggleMenu} />}
-      <div className={`slide-menu ${menuOpen ? "open" : ""}`}>
-        <div className="top-rectangle">
-          <img src={logo} alt="Logo" className="menu-logo" />
+          )}
         </div>
-        <button className="close-btn" onClick={toggleMenu}>
-          ✕
-        </button>
-        <div className="menu-content">
-          <div
-            className="menu-item"
-            onClick={() => {
-              toggleMenu();
-              navigate("/disaster");
-            }}
-          >
-            Search Disaster →
+
+        <img src={illustration} alt="Footer Icon" className="footer-icon" />
+
+        {menuOpen && <div className="menu-overlay" onClick={toggleMenu} />}
+        <div className={`slide-menu ${menuOpen ? "open" : ""}`}>
+          <div className="top-rectangle">
+            <img src={logo} alt="Logo" className="menu-logo" />
           </div>
-          <div
-            className="menu-item"
-            onClick={() => {
-              toggleMenu();
-              navigate("/profile");
-            }}
-          >
-            Profile →
-          </div>
-          <button
-            className="logout-btn"
-            onClick={() => {
-              toggleMenu();
-              navigate("/");
-              // handleLogout();
-            }}
-          >
-            Log Out
+          <button className="close-btn" onClick={toggleMenu}>
+            ✕
           </button>
+          <div className="menu-content">
+            <div
+              className="menu-item"
+              onClick={() => {
+                toggleMenu();
+                navigate("/disaster");
+              }}
+            >
+              Search Disaster →
+            </div>
+            <div
+              className="menu-item"
+              onClick={() => {
+                toggleMenu();
+                navigate("/profile");
+              }}
+            >
+              Profile →
+            </div>
+            <button
+              className="logout-btn"
+              onClick={() => {
+                toggleMenu();
+                navigate("/");
+                // handleLogout();
+              }}
+            >
+              Log Out
+            </button>
+          </div>
         </div>
       </div>
     </div>
