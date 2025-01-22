@@ -151,3 +151,10 @@ def post_district(request):
         serializer.save()
         return Response(serializer.data, status=201)
     return Response(serializer.errors, status=400)
+
+@api_view(['GET'])
+def get_all_districts(request):
+    district = District.objects.all()
+    serializer = DistrictSerializer(district, many=True)
+    return Response(serializer.data, status=200)
+

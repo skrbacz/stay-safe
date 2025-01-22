@@ -15,6 +15,7 @@ urlpatterns = [
     path('natural_disaster/delete/<str:name>/', views.delete_natural_disaster, name='delete_natural_disaster'),
     path('user/update/districts', views.update_users_districts, name='update_users_districts'),
     path('district/create', views.post_district, name='post_district'),
+    path('district/', views.get_all_districts, name='get_all_districts'),
 ]
 
 if settings.DEBUG:
