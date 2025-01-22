@@ -1,70 +1,90 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import {
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Button,
+  Autocomplete,
+  TextField,
+} from "@mui/material";
 import "./Profile.css";
 import logoWithName from "../assets/logo_with_name.svg";
 import illustration from "../assets/illustration.svg";
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
 import logo from "../assets/logo.svg";
+import axios from "axios";
 
 const Profile = () => {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [districts, setDistricts] = useState(null);
+  const [districts, setDistricts] = useState([]);
+  const [allDistricts, setAllDistricts] = useState([]);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [selectedDistrict, setSelectedDistrict] = useState(null);
   const navigate = useNavigate();
 
-  const toggleMenu = () => {
-    setMenuOpen((prev) => !prev);
-  };
+  const toggleMenu = () => setMenuOpen((prev) => !prev);
 
-  // const handleLogout = async () => {
-  //     try {
-  //         const csrfToken = Cookies.get("csrftoken");
-  //         const response = await axios.post(
-  //             "http://localhost:8000/api/logout/",
-  //             {},
-  //             {
-  //                 withCredentials: true,
-  //                 headers: {
-  //                     "X-CSRFToken": csrfToken,
-  //                 },
-  //             }
-  //         );
-
-  //         console.log("Logout successful:", response);
-  //         Cookies.remove("sessionid");
-  //         navigate("/login");
-  //     } catch (error) {
-  //         console.error("Logout error:", error);
-  //     }
-  // };
-
-  // Mockup data for districts
+  
   useEffect(() => {
-    // Commented out actual API call
-    // const fetchDistricts = async () => {
-    //     try {
-    //         const response = await axios.get("http://localhost:8000/api/user-districts/", {
-    //             withCredentials: true,
-    //         });
-    //         setDistricts(response.data); // Set the fetched districts
-    //     } catch (error) {
-    //         console.error("Error fetching districts:", error);
-    //     }
-    // };
+    const fetchDistricts = async () => {
+      try {
+        const response = await axios.get("/user/update/districts", {
+          withCredentials: true, 
+        });
+        setDistricts(response.data || []);
+      } catch (error) {
+        console.error("Error fetching user's districts:", error);
+      }
+    };
 
-    // fetchDistricts();
+    const fetchAllDistricts = async () => {
+      try {
+        const response = await axios.get("/district/");
+        setAllDistricts(response.data || []);
+      } catch (error) {
+        console.error("Error fetching all districts:", error);
+      }
+    };
 
-    // Mockup data (replace with API response in production)
-    const mockDistricts = [
-      { name: "District 1", disaster_name: "Flood" },
-      { name: "District 2", disaster_name: "Earthquake" },
-      { name: "District 12", disaster_name: "Drought" },
-    ];
-
-    setTimeout(() => setDistricts(mockDistricts), 500); // Simulate API delay
+    fetchDistricts();
+    fetchAllDistricts();
   }, []);
 
-  const handleDisasterClick = (disasterName) => {
-    navigate("/disaster", { state: { disasterName } });
+  const handleDialogOpen = () => setDialogOpen(true);
+  const handleDialogClose = () => setDialogOpen(false);
+
+  
+  const handleAddDistrict = async () => {
+    try {
+      await axios.patch(
+        `/user/update/districts/${selectedDistrict.name}`,
+        { districts: { add: true } },
+        { withCredentials: true }
+      );
+      setDistricts((prev) => [...prev, selectedDistrict]);
+      setDialogOpen(false);
+    } catch (error) {
+      console.error("Error adding district:", error);
+    }
+  };
+
+  
+  const handleDeleteDistrict = async () => {
+    try {
+      await axios.patch(
+        `/user/update/districts/${selectedDistrict.name}`,
+        { districts: { remove: true } },
+        { withCredentials: true }
+      );
+      setDistricts((prev) =>
+        prev.filter((d) => d.name !== selectedDistrict.name)
+      );
+      setDialogOpen(false);
+    } catch (error) {
+      console.error("Error removing district:", error);
+    }
   };
 
   return (
@@ -75,35 +95,86 @@ const Profile = () => {
       </header>
 
       <div className="info-container">
-        <h2>
-          Hello *username* !
-        </h2>
-
-        {districts && districts.length > 0 ? (
-          districts.map((district, index) => (
-            <div
-              key={index}
-              className="info-item"
-              onClick={() => handleDisasterClick(district.disaster_name)}
-            >
-              <h3>
-                {district.name}: {district.disaster_name}
-              </h3>
-              <p>
-                Click <span>here</span> to see how to make sure you stay safe.
-              </p>
+        <h2>Hello *username* !</h2>
+        <a>Districts you follow: </a>
+        <div className="district-container">
+          {districts && districts.length > 0 ? (
+            districts.map((district, index) => (
+              <div key={index}>
+                <h3>• {district.name}</h3>
+              </div>
+            ))
+          ) : (
+            <div className="info-item">
+              <p>No followed districts yet!</p>
             </div>
-          ))
-        ) : (
-          <div className="info-item">
-            <p>
-              Click <span>here</span> to add a district you want to follow.
-            </p>
-          </div>
-        )}
+          )}
+        </div>
+        <div className="button-container">
+          <b>
+            <span
+              onClick={handleDialogOpen}
+              style={{ cursor: "pointer", color: "black" }}
+            >
+              EDIT DISTRICTS YOU FOLLOW
+            </span>
+          </b>
+        </div>
       </div>
 
-      <img src={illustration} alt="Footer Icon" className="footer-icon-profile" />
+      <img
+        src={illustration}
+        alt="Footer Icon"
+        className="footer-icon-profile"
+      />
+
+      <Dialog open={dialogOpen} onClose={handleDialogClose}>
+        <DialogTitle>Edit Districts</DialogTitle>
+        <DialogContent>
+          <Autocomplete
+            disablePortal
+            options={allDistricts}
+            getOptionLabel={(option) => option.name}
+            onChange={(event, newValue) => setSelectedDistrict(newValue)}
+            sx={{ width: 300 }}
+            renderInput={(params) => (
+              <TextField {...params} label="Select a District" />
+            )}
+            value={selectedDistrict}
+          />
+          <div>
+            <h4>
+              Selected District:{" "}
+              {selectedDistrict ? selectedDistrict.name : "None"}
+            </h4>
+          </div>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleDialogClose} color="secondary">
+            Cancel
+          </Button>
+          <Button
+            onClick={handleAddDistrict}
+            color="primary"
+            disabled={
+              !selectedDistrict ||
+              districts.some((d) => d.name === selectedDistrict.name)
+            }
+          >
+            Add
+          </Button>
+          <Button
+            onClick={handleDeleteDistrict}
+            color="error"
+            disabled={
+              !selectedDistrict ||
+              !districts.some((d) => d.name === selectedDistrict.name)
+            }
+          >
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       {menuOpen && <div className="menu-overlay" onClick={toggleMenu} />}
       <div className={`slide-menu ${menuOpen ? "open" : ""}`}>

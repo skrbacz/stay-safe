@@ -39,12 +39,12 @@ body {
 }
 
 .info-container {
-    width: 85%;
+    width: 80%;
     background-color: #B9FF66;
     border: 1px solid black;
     margin: 50px 50px;
     padding: 20px;
-    height: 55%;
+    height: 58%;
     display: flex;
     flex-direction: column;
     align-items: flex-start; 
@@ -55,14 +55,29 @@ body {
 }
 
 .info-container h2 {
-    font-size: 1.5em;
+    font-size: 1.6em;
     font-weight: bold;
-    margin-bottom: 20px; 
+    margin-bottom: 10px; 
     color: black;
     line-height: 1.2em;
     text-align: left;
 }
 
+.info-container a {
+    margin-top: 0.5em;
+    font-size: 1.5em;
+    margin-bottom: 10px; 
+    color: black;
+    line-height: 1.2em;
+    text-align: left;
+}
+.info-container h3 {
+    font-size: 1.5em;
+    margin-bottom: 10px; 
+    color: black;
+    line-height: 1.2em;
+    text-align: left;
+}
 .info-item {
     margin-bottom: 20px; 
     padding-left: 5px;
@@ -81,22 +96,57 @@ body {
 .info-item span:hover {
     text-decoration: underline;
 }
-
-/* Scrollbar customization */
-.info-container::-webkit-scrollbar {
+.district-container {
+    width: 100%;
+    background-color: #B9FF66;
+    height: 60%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; 
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: #0000 #f1f1f1;
+}
+.district-container::-webkit-scrollbar {
     width: 8px;
 }
 
-.info-container::-webkit-scrollbar-thumb {
+.district-container::-webkit-scrollbar-thumb {
     background-color: #000000;
     border-radius: 10px;
 }
 
-.info-container::-webkit-scrollbar-track {
+.district-container::-webkit-scrollbar-track {
     background-color: #f1f1f1;
 }
 
+.button-container {
+    margin-top: 20px;
+    align-self: center;
+    text-align: center;
+    width: 90%;
+    background-color: #f1f1f1;
+    border: 1px solid black;
+    padding: 20px;
+    height: fit-content;
+    display: flex;
+    flex-direction: column;
+}
 
+.button-container b {
+    font-weight: bold;
+    font-size: 1.5em;
+}
+.button-container span {
+    font-weight: bold;
+    color: #000000;
+    cursor: pointer;
+}
+
+.button-container span:hover {
+    text-decoration: underline;
+}
 .footer-icon-profile {
     position: absolute;
     margin-top: 52em;
@@ -106,7 +156,7 @@ body {
     background-repeat: no-repeat;
     background-position: center;
 }
-
+/*Toggle Bar*/
 .menu-overlay {
     position: absolute;
     top: 0;
@@ -206,3 +256,4 @@ body {
     background-color: #B9FF66;
     color: #000000;
 }
+
