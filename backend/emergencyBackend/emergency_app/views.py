@@ -2,9 +2,8 @@ from django.contrib.auth import login, logout
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.views.decorators.csrf import csrf_exempt
-
-from emergency_app.models import NaturalDisasterModel
-from emergency_app.serializers import NaturalDisasterSerializer, LoginSerializer, RegisterSerializer
+from emergency_app.models import NaturalDisasterModel, User, District
+from emergency_app.serializers import NaturalDisasterSerializer, LoginSerializer, RegisterSerializer, DistrictSerializer
 
 
 @api_view(['GET'])
@@ -95,3 +94,67 @@ def delete_natural_disaster(request, name):
         return Response({'message': 'Natural disaster: ' + name + '- deleted'}, status=200)
     except NaturalDisasterModel.DoesNotExist:
         return Response({'message': 'Natural disaster not found'}, status=404)
+
+
+@csrf_exempt
+@api_view(['GET'])
+def get_users_districts(request):
+    try:
+        user = User.objects.get(id=request.user.id)
+        districts = user.districts.all()
+        if not districts:
+            return Response([], status=200)
+        serializer = DistrictSerializer(districts, many=True)
+        return Response(serializer.data, status=200)
+    except User.DoesNotExist:
+        return Response({"detail": "User not found."}, status=404)
+
+
+@csrf_exempt
+@api_view(['PATCH'])
+def update_users_districts(request, name):
+    try:
+        user = User.objects.get(id=request.user.id)
+        district = District.objects.get(name=name)
+        if 'districts' in request.data:
+            districts_data = request.data['districts']
+            if districts_data.get('add'):
+                user.districts.add(district)
+                action = "added"
+            elif districts_data.get('remove'):
+                user.districts.remove(district)
+                action = "removed"
+            else:
+                return Response({"detail": "Invalid action."}, status=400)
+            user.save()
+            serializer = DistrictSerializer(user.districts.all(), many=True)
+            return Response(
+                {
+                    "detail": f"District successfully {action}.",
+                    "districts": serializer.data
+                },
+                status=200
+            )
+
+        return Response({"detail": "No districts data provided."}, status=400)
+
+    except User.DoesNotExist:
+        return Response({"detail": "User not found."}, status=404)
+    except District.DoesNotExist:
+        return Response({"detail": f"District with name {name} not found."}, status=404)
+
+@csrf_exempt
+@api_view(['POST'])
+def post_district(request):
+    serializer = DistrictSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=201)
+    return Response(serializer.errors, status=400)
+
+@api_view(['GET'])
+def get_all_districts(request):
+    district = District.objects.all()
+    serializer = DistrictSerializer(district, many=True)
+    return Response(serializer.data, status=200)
+
