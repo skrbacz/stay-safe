@@ -53,21 +53,34 @@ class UserManager(BaseUserManager):
         if not email:
             raise ValueError('Users must have an email address')
         email = self.normalize_email(email)
-        user = self.model(email, **extra_fields)
-        user.set_password(password)
+        user = self.model(email=email, **extra_fields)
+        user.set_password(password)  # Set password securely
         user.save(using=self._db)
         return user
 
     def create_superuser(self, email, password=None, **extra_fields):
+        """
+        Create and return a superuser with is_staff and is_superuser set to True
+        """
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
+
+        if extra_fields.get('is_staff') is not True:
+            raise ValueError('Superuser must have is_staff=True.')
+        if extra_fields.get('is_superuser') is not True:
+            raise ValueError('Superuser must have is_superuser=True.')
+
         return self.create_user(email, password, **extra_fields)
+
 
 
 class User(AbstractBaseUser):
     email = models.EmailField(unique=True)
     username = models.CharField(max_length=100)
     hashed_password = models.CharField(max_length=255)
+    is_staff = models.BooleanField(default=False)  # Allows the user to access the Django admin
+    is_superuser = models.BooleanField(default=False)  # Superuser status
+    is_active = models.BooleanField(default=True)
     district = models.ForeignKey(District, null=True, blank=True, on_delete=models.SET_NULL)
 
     objects = UserManager()

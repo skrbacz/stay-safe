@@ -2,11 +2,14 @@ from django.urls import path
 from . import views
 from django.conf.urls.static import static
 from django.conf import settings
+from rest_framework_simplejwt.views import TokenObtainPairView,TokenRefreshView
 
 urlpatterns = [
-    # path('login/', views.login_user, name='login_user'),
-    # path('logout/', views.logout_user, name='logout_user'),
-    # path('register/', views.register_user, name='register_user'),
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('login/', views.login_user, name='login_user'),
+    path('logout/', views.logout_user, name='logout_user'),
+    path('register/', views.register_user, name='register_user'),
     # path('check_login/', views.check_login, name='check_login'),
     path('', views.landing_page, name='landing_page'),
     path('natural_disaster/<str:name>/', views.get_natural_disaster_by_name, name='natural_disaster_one'),
