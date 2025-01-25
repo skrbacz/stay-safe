@@ -3,7 +3,7 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 
 
 class District(models.Model):
-    district_code = models.IntegerField(primary_key=True, default=1602)
+    district_code = models.CharField(primary_key=True, default="1602", max_length=4)
     name = models.CharField(max_length=250)
 
     def __str__(self):
