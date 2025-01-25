@@ -3,23 +3,14 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 
 
 class District(models.Model):
-    id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=100)
-    country = models.CharField(max_length=100)
-
-    DISTRICT_STATES = [
-        ('safe', 'Safe'),
-        ('natural_disaster_incoming', 'Natural disaster incoming'),
-        ('natural_disaster_ongoing', 'Natural disaster ongoing'),
-        ('natural_disaster_ended', 'Natural disaster ended'),
-    ]
-    state = models.CharField(max_length=100, choices=DISTRICT_STATES, default='safe')
+    district_code = models.IntegerField(primary_key=True, default=1602)
+    name = models.CharField(max_length=250)
 
     def __str__(self):
-        return self.name, self.country, "state:", self.state
+        return self.name
 
 
-class NaturalDisasterModel(models.Model):
+class NaturalDisaster(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=100, unique=True)
     description = models.CharField(max_length=1000)
@@ -31,21 +22,13 @@ class NaturalDisasterModel(models.Model):
 
 class NaturalDisasterInDistrict(models.Model):
     id = models.AutoField(primary_key=True)
-    natural_disaster = models.ForeignKey(NaturalDisasterModel, on_delete=models.CASCADE)
+    natural_disaster = models.ForeignKey(NaturalDisaster, on_delete=models.CASCADE)
     district = models.ForeignKey(District, on_delete=models.CASCADE)
     date = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return ("disaster name:", self.natural_disaster.name, "district name:", self.district.name,
-                "city state:", self.district.state, self.date)
-
-
-class DistrictCode(models.Model):
-    district_code = models.IntegerField(primary_key=True)
-    name = models.CharField(max_length=250)
-
-    def __str__(self):
-        return self.name
+                "date:", self.date)
 
 
 class UserManager(BaseUserManager):

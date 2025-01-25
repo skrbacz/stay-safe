@@ -2,12 +2,12 @@ import re
 
 from django.contrib.auth import authenticate
 from rest_framework import serializers
-from emergency_app.models import NaturalDisasterModel, User, District
+from emergency_app.models import NaturalDisaster, User, District
 
 
 class NaturalDisasterSerializer(serializers.ModelSerializer):
     class Meta:
-        model = NaturalDisasterModel
+        model = NaturalDisaster
         fields = '__all__'
 
 

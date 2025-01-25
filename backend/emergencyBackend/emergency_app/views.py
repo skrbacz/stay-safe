@@ -2,7 +2,7 @@ from django.contrib.auth import login, logout
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.views.decorators.csrf import csrf_exempt
-from emergency_app.models import NaturalDisasterModel, User, District
+from emergency_app.models import NaturalDisaster, User, District
 from emergency_app.serializers import NaturalDisasterSerializer, LoginSerializer, RegisterSerializer, DistrictSerializer
 
 
@@ -61,16 +61,16 @@ def register_user(request):
 @api_view(['GET'])
 def get_natural_disaster_by_name(request, name=None):
     try:
-        disaster = NaturalDisasterModel.objects.get(name=name)
+        disaster = NaturalDisaster.objects.get(name=name)
         serializer = NaturalDisasterSerializer(disaster)
         return Response(serializer.data, status=200)
-    except NaturalDisasterModel.DoesNotExist:
+    except NaturalDisaster.DoesNotExist:
         return Response({'message': 'Natural disaster not found'}, status=404)
 
 
 @api_view(['GET'])
 def get_all_natural_disasters(request):
-    disasters = NaturalDisasterModel.objects.all()
+    disasters = NaturalDisaster.objects.all()
     serializer = NaturalDisasterSerializer(disasters, many=True)
     return Response(serializer.data, status=200)
 
@@ -89,10 +89,10 @@ def post_natural_disaster(request):
 @api_view(['DELETE'])
 def delete_natural_disaster(request, name):
     try:
-        disaster = NaturalDisasterModel.objects.get(name=name)
+        disaster = NaturalDisaster.objects.get(name=name)
         disaster.delete()
         return Response({'message': 'Natural disaster: ' + name + '- deleted'}, status=200)
-    except NaturalDisasterModel.DoesNotExist:
+    except NaturalDisaster.DoesNotExist:
         return Response({'message': 'Natural disaster not found'}, status=404)
 
 
