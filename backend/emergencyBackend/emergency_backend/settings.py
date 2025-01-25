@@ -158,6 +158,7 @@ CSRF_COOKIE_HTTPONLY = False  # Allow frontend access for the CSRF token
 CSRF_USE_SESSIONS = True
 CSRF_COOKIE_NAME = "csrftoken"  # Make sure CSRF cookie name is set
 CSRF_COOKIE_SAMESITE = 'None'  # Use 'None' for cross-origin React requests
+
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:3000",  # React frontend
     "http://localhost:8000",  # Django backend
