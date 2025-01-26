@@ -8,7 +8,31 @@ import illustration from "../assets/illustration.svg";
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
 import logo from "../assets/logo.svg";
 
+function translateValues(object, fieldsToTranslate, translationMap) {
+  if (object === undefined){
+    return object;
+  }
+  let translatedObject = object; // Copy the object to avoid mutation
+
+  for (const field of fieldsToTranslate) {
+    if (object[field] && translationMap[object[field]]) {
+      translatedObject[field] = translationMap[object[field]];
+    } 
+  }
+
+  return translatedObject;
+}
+
 const Home = () => {
+
+  const valueTranslationMap = {
+    "Silny wiatr": "Strong wind",
+    "Opady śniegu": "Snowfall",
+    "Przymrozki": "Frosts",
+    "Gęsta mgła": "Thick fog",
+    "Opady marznące": "Freezing rain"
+  };
+
   const [menuOpen, setMenuOpen] = useState(false);
   // const [districts, setDistricts] = useState(null);
   // mock data for districts:
@@ -72,11 +96,12 @@ const Home = () => {
         const selectedDistrict = fetchedDistricts.find(
           (disaster) => disaster.id.includes(element.id)
         );
+        const translatedDistrict = translateValues(selectedDistrict,["disaster"],valueTranslationMap);
         console.log('current district:', selectedDistrict)
         finalDistricts.push({
           id: element.id,
           name: element.name,
-          disaster: selectedDistrict ? selectedDistrict.disaster : 'No Disasters'
+          disaster: translatedDistrict ? translatedDistrict.disaster : "No Disasters",
         });
       })
       console.log('final districts:', finalDistricts)
