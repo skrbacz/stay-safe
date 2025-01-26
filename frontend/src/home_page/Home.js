@@ -10,7 +10,14 @@ import logo from "../assets/logo.svg";
 
 const Home = () => {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [districts, setDistricts] = useState(null);
+  // const [districts, setDistricts] = useState(null);
+  // mock data for districts:
+  const [districts, setDistricts] = useState([
+    { id: '0220', name: "trzebnicki", disaster: "" },
+    { id: '0223', name: "wrocławski", disaster: "" },
+    { id: '1821', name: "leski", disaster: "" },
+    { id: '1861', name: "Krosno", disaster: "" },
+  ]);
   const navigate = useNavigate();
 
   const toggleMenu = () => {
@@ -39,35 +46,53 @@ const Home = () => {
   //     }
   // };
 
-  // Mockup data for districts
+  const handleGetIMGWDisasters = async () => {
+    try {
+      const response = await axios.get(
+        "https://danepubliczne.imgw.pl/api/data/warningsmeteo"
+      );
+
+      const fetchedDistricts = [];
+
+      console.log("Disasters fetched successfully:", response.data);
+      response.data.forEach((element) => {
+        const districtid = element.teryt;
+        const districtDisaster = element.nazwa_zdarzenia;
+
+        fetchedDistricts.push({
+          id: districtid,
+          disaster: districtDisaster,
+        });
+      });
+
+      console.log("api districts:", fetchedDistricts);
+      const finalDistricts = []
+
+      districts.forEach((element) => {
+        const selectedDistrict = fetchedDistricts.find(
+          (disaster) => disaster.id.includes(element.id)
+        );
+        console.log('current district:', selectedDistrict)
+        finalDistricts.push({
+          id: element.id,
+          name: element.name,
+          disaster: selectedDistrict ? selectedDistrict.disaster : 'No Disasters'
+        });
+      })
+      console.log('final districts:', finalDistricts)
+      setDistricts(finalDistricts)
+    } catch (error) {
+      console.error("Error fetching disasters:", error);
+    }
+  };
+
   useEffect(() => {
-    // Commented out actual API call
-    // const fetchDistricts = async () => {
-    //     try {
-    //         const response = await axios.get("http://localhost:8000/api/user-districts/", {
-    //             withCredentials: true,
-    //         });
-    //         setDistricts(response.data); // Set the fetched districts
-    //     } catch (error) {
-    //         console.error("Error fetching districts:", error);
-    //     }
-    // };
-
-    // fetchDistricts();
-
-    // Mockup data (replace with API response in production)
-    const mockDistricts = [
-      { name: "District 1", disaster_name: "Flood" },
-      { name: "District 2", disaster_name: "Earthquake" },
-      { name: "District 12", disaster_name: "Drought" },
-    ];
-
-    setTimeout(() => setDistricts(mockDistricts), 500); // Simulate API delay
-  }, []);
+    handleGetIMGWDisasters();
+  });
 
   const handleDisasterClick = (disasterName) => {
     // Navigate to the disaster page with the disaster name
-    navigate("/disaster", { state: { disasterName } });
+    navigate("/disaster", { state: { selectedDisaster: disasterName } });
   };
 
   return (
@@ -88,10 +113,10 @@ const Home = () => {
               <div
                 key={index}
                 className="info-item"
-                onClick={() => handleDisasterClick(district.disaster_name)}
+                onClick={() => handleDisasterClick(district.disaster)}
               >
                 <h3>
-                  {district.name}: {district.disaster_name}
+                  {district.name}: {district.disaster}
                 </h3>
                 <p>
                   Click <span>here</span> to see how to make sure you stay safe.

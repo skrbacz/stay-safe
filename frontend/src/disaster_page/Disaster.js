@@ -1,20 +1,23 @@
 import React, { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import "./Disaster.css";
 import logo_name from "../assets/logo_with_name.svg";
 import axios from "axios";
 
 const Disaster = () => {
-  const [disasterOptions, setDisasterOptions] = useState(["Select Disaster"]);
-  const [selectedDisaster, setSelectedDisaster] = useState("Select Disaster");
+  const location = useLocation();
+  const initialDisaster = location.state?.selectedDisaster || "Select Disaster";
+  const [disasterOptions, setDisasterOptions] = useState(['']);
+  const [selectedDisaster, setSelectedDisaster] = useState(initialDisaster);
   const [disastersDetails, setDisastersDetails] = useState({
-    name: "Select Disaster",
-    description: "Select a disaster to view the details here.",
-    tasks: "Select a disaster to view the actions here.",
+    name: '',
+    description: '',
+    tasks: '',
   });
   const [selectedDisasterDetails, setSelectedDisasterDetails] = useState(
-    "Select a disaster to view the details here."
+    disastersDetails.description
   );
-  const toDoLabels = ["Select a disaster to view the actions here."];
+  const toDoLabels = [disastersDetails.tasks];
   const [toDoList, setToDoList] = useState(
     Array.from({ length: toDoLabels.length }, (_, index) => ({
       id: index,
@@ -25,7 +28,7 @@ const Disaster = () => {
 
   useEffect(() => {
     handleGetDisasters();
-  }, []);
+  });
 
   const handleGetDisasters = async () => {
     try {
@@ -57,8 +60,18 @@ const Disaster = () => {
       });
       console.log("fetched disaster names: ", fetchedDisasterNames);
       console.log("fetched disasters: ", fetchedDisasters);
+      const selectedDetail = fetchedDisasters.find(
+        (event) => event.name === selectedDisaster
+      );
+      const toDoLabels = selectedDetail ? selectedDetail.tasks.split(";") : ["Select a disaster to view the actions here."];
       setDisasterOptions(fetchedDisasterNames);
       setDisastersDetails(fetchedDisasters);
+      setSelectedDisasterDetails(selectedDetail ? selectedDetail.description : "Select a disaster to view the details here.");
+      setToDoList(Array.from({ length: toDoLabels.length }, (_, index) => ({
+        id: index,
+        text: toDoLabels[index],
+        completed: false,
+      })));
     } catch (error) {
       console.error("Error fetching disasters:", error);
     }
@@ -86,15 +99,6 @@ const Disaster = () => {
     );
     console.log("selected disaster after: ", selectedDisaster);
   };
-
-  const initialToDos = Array.from(
-    { length: toDoLabels.length },
-    (_, index) => ({
-      id: index,
-      text: toDoLabels[index],
-      completed: false,
-    })
-  );
 
   const toggleComplete = (id) => {
     const updatedToDos = toDoList.map((todo) =>
