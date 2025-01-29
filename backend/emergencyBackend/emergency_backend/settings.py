@@ -24,7 +24,8 @@ SECRET_KEY = 'django-insecure-z+o)vcz3%#-*(kzswxdpbt^+^jv4jw8c_j(6)a9(3=ng!#__0l
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+]
 
 # Application definition
 
@@ -140,24 +141,26 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated',  # Require login for all endpoints by default
+        'rest_framework.permissions.IsAuthenticated',
     ],
 }
 
 # Session settings
-SESSION_COOKIE_AGE = 60 * 60 * 24 * 30
-SESSION_COOKIE_SECURE = False  # Use True in production (HTTPS required)
+SESSION_COOKIE_AGE = 60 * 60 * 24 * 14
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+SESSION_SAVE_EVERY_REQUEST = False
+
+SESSION_COOKIE_SECURE = False
 SESSION_COOKIE_HTTPONLY = True
-SESSION_COOKIE_SAMESITE = 'None'  # Use 'None' if React needs cross-origin requests
-SESSION_COOKIE_NAME = 'sessionid'
-SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # This should typically be the default
+SESSION_COOKIE_SAMESITE = 'Lax'
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 
 # CSRF settings
-CSRF_COOKIE_SECURE = False  # Use True in production
-CSRF_COOKIE_HTTPONLY = False  # Allow frontend access for the CSRF token
-CSRF_USE_SESSIONS = True
-CSRF_COOKIE_NAME = "csrftoken"  # Make sure CSRF cookie name is set
-CSRF_COOKIE_SAMESITE = 'None'  # Use 'None' for cross-origin React requests
+CSRF_COOKIE_HTTPONLY = False
+CSRF_COOKIE_SAMESITE = 'Lax'
+CSRF_COOKIE_SECURE = False
+
+
 
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:3000",  # React frontend
@@ -165,11 +168,9 @@ CSRF_TRUSTED_ORIGINS = [
 ]
 
 CORS_ORIGIN_WHITELIST = [
-    "http://localhost:3000",  # React frontend
-    "http://localhost:8000",  # Django backend
+    "http://localhost:3000",
+    "http://localhost:8000",
 ]
 CORS_ALLOW_CREDENTIALS = True
-
-CORS_ALLOW_ALL_ORIGINS = True
 
 CORS_ALLOW_ALL = True

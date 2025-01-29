@@ -56,16 +56,8 @@ const Login = () => {
       );
 
       if (response.status === 200) {
-        const userIdResponse = await axios.get(
-          `http://localhost:8000/api/get_user_id/${values.email}/`
-        );
-        if (userIdResponse.status === 200) {
-          const userId = userIdResponse.data.user_id;
-          Cookies.set("user_id", userId, { expires: 7 });
-        }
-
         alert("Login successful!");
-        navigate("/navigation");
+        navigate("/home");
       }
     } catch (error) {
       if (error.response && error.response.data) {

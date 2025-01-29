@@ -5,22 +5,42 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from django.views.decorators.csrf import csrf_exempt
-from emergency_app.models import NaturalDisasterModel, User, District
+from emergency_app.models import NaturalDisaster, User, District
 from emergency_app.permissions import IsSuperUser
-from emergency_app.serializers import NaturalDisasterSerializer, LoginSerializer, RegisterSerializer, DistrictSerializer
+from emergency_app.serializers import NaturalDisasterSerializer, LoginSerializer, RegisterSerializer, \
+    DistrictSerializer, UserSerializer
 
 
 @api_view(['GET'])
+@permission_classes([AllowAny])
 def landing_page(request):
+    """
+    Returns a welcome message from the backend.
+
+    Args:
+        request: The HTTP request object.
+
+    Returns:
+        Response: JSON response with a welcome message.
+    """
     return Response({
         'message': 'Hello from the backend!'
     }, status=200)
 
 
-@csrf_exempt
+#Auth views
 @api_view(['POST'])
-@permission_classes([AllowAny])  # Allow unauthenticated access
+@permission_classes([AllowAny])
 def login_user(request):
+    """
+    Authenticates and logs in a user.
+
+    Args:
+         request: The HTTP request object containing email and password.
+
+    Returns:
+        Response: JSON response with login success or failure message.
+    """
     email = request.data.get('email')
     password = request.data.get('password')
     user = authenticate(request, username=email, password=password)
@@ -31,41 +51,20 @@ def login_user(request):
     else:
         return Response({'detail': 'Invalid credentials'}, status=401)
 
+
 @api_view(['POST'])
-def logout_user(request):
-    """
-    Logs out the user by terminating their session.
-
-    This view handles POST requests to log out the user by calling the Django
-    logout function, deleting the session cookie, and returning a success message.
-
-    Args:
-        request (HttpRequest): The HTTP request object.
-
-    Returns:
-        Response: A DRF Response object with a success message and HTTP status 200.
-    """
-
-    logout(request)
-    response = Response({'message': 'Logout successful'}, status=200)
-    response.delete_cookie('sessionid')
-
-    return response
-
-
-@csrf_exempt
-@api_view(['POST'])
-@permission_classes([AllowAny])  # Allow unauthenticated access
+@permission_classes([AllowAny])
 def register_user(request):
     """
-    Handle user registration via a POST request.
+    Registers a new user.
 
-    This view function uses the RegisterSerializer to validate and save
-    a new user based on the provided request data. If the registration
-    is successful, it returns a success message along with the user's
-    email and a 201 status code. If the registration fails, it returns
-    an error message with the validation errors and a 400 status code.
+    Args:
+        request: The HTTP request object containing user registration data.
+
+    Returns:
+        Response: JSON response with registration success or failure message.
     """
+
     serializer = RegisterSerializer(data=request.data)
     if serializer.is_valid():
         user = serializer.save()
@@ -80,35 +79,34 @@ def register_user(request):
         )
 
 
-@api_view(['GET'])
-def landing_page(request):
-    login_url = request.build_absolute_uri(reverse('login_user'))
-    return Response({
-        'message': 'Redirection succeeded',
-        'login_url': login_url,
-    }, status=200)
-
-
-@api_view(['GET'])
-def get_natural_disaster_by_name(request, name=None):
+@api_view(['POST'])
+def logout_user(request):
     """
-    Retrieve a natural disaster by its name.
+    Logs out a user.
 
     Args:
         request: The HTTP request object.
-        name (str, optional): The name of the natural disaster to retrieve.
 
     Returns:
-        Response: A Response object containing the serialized data of the natural disaster
-        if found, or an error message if not found, with appropriate HTTP status codes.
+        Response: JSON response with logout success message.
     """
-    try:
-        disaster = NaturalDisasterModel.objects.get(name=name)
-        serializer = NaturalDisasterSerializer(disaster)
-        return Response(serializer.data, status=200)
-    except NaturalDisasterModel.DoesNotExist:
-        return Response({'message': 'Natural disaster not found'}, status=404)
+    logout(request)
+    response = Response({'message': 'Logout successful'}, status=200)
+    response.delete_cookie('sessionid')
 
+    return response
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def check_login(request):
+    if request.user.is_authenticated:
+        return Response({'detail': 'User is authenticated', 'user': {'email': request.user.email}}, status=200)
+
+    return Response({'detail': 'User is NOT authenticated'}, status=401)
+
+
+# User / admin views
 
 @api_view(['GET'])
 def get_all_natural_disasters(request):
@@ -125,80 +123,86 @@ def get_all_natural_disasters(request):
         Response: A Response object containing serialized data of all natural
         disasters and an HTTP status code 200.
     """
-    disasters = NaturalDisasterModel.objects.all()
+    disasters = NaturalDisaster.objects.all()
     serializer = NaturalDisasterSerializer(disasters, many=True)
     return Response(serializer.data, status=200)
 
 
-@api_view(['POST'])
-@permission_classes([IsAuthenticated, IsSuperUser])
-def post_natural_disaster(request):
+@api_view(['GET'])
+def get_natural_disaster_by_name(request, name=None):
     """
-    Handle POST requests to create a new natural disaster record.
-
-    This view function accepts a POST request containing data for a new
-    natural disaster. It validates the data using the NaturalDisasterSerializer,
-    saves the record if valid, and returns the serialized data with a 201 status.
-    If the data is invalid, it returns the validation errors with a 400 status.
-
-    Args:
-        request (Request): The HTTP request object containing the data.
-
-    Returns:
-        Response: A Response object with serialized data and status code.
-    """
-    serializer = NaturalDisasterSerializer(data=request.data)
-    if serializer.is_valid():
-        serializer.save()
-        return Response(serializer.data, status=201)
-    return Response(serializer.errors, status=400)
-
-
-@api_view(['DELETE'])
-def delete_natural_disaster(request, name):
-    """
-    Deletes a natural disaster entry by its name.
-
-    This view handles DELETE requests to remove a natural disaster
-    record from the database. If the specified natural disaster
-    exists, it is deleted, and a success message is returned.
-    If not found, a 404 response is returned with an appropriate message.
+    Retrieve a natural disaster by its name.
 
     Args:
         request: The HTTP request object.
-        name (str): The name of the natural disaster to be deleted.
+        name: The name of the natural disaster to retrieve.
 
     Returns:
-        Response: A JSON response with a success message and status 200
-        if the natural disaster is deleted, or a 404 status with an error
-        message if the disaster does not exist.
+        Response: A Response object containing the serialized data of the
+        natural disaster and an HTTP status code 200.
+    Raises:
+        NaturalDisaster.DoesNotExist: If the natural disaster is not found in the database.
     """
-    if not request.user.is_superuser:
-        return Response({'detail': 'Permission denied. Admin access only.'}, status=403)
-
     try:
-        disaster = NaturalDisasterModel.objects.get(name=name)
-        disaster.delete()
-        return Response({'message': f'Natural disaster {name} deleted.'}, status=200)
-    except NaturalDisasterModel.DoesNotExist:
-        return Response({'message': 'Natural disaster not found.'}, status=404)
+        disaster = NaturalDisaster.objects.get(name=name)
+        serializer = NaturalDisasterSerializer(disaster)
+        return Response(serializer.data, status=200)
+    except NaturalDisaster.DoesNotExist:
+        return Response({'message': 'Natural disaster not found'}, status=404)
+
+
+@api_view(['GET'])
+def get_all_districts(request):
+    """
+    Retrieve all districts.
+
+    Args:
+        request: The HTTP request object.
+
+    Returns:
+        Response: A DRF Response object containing serialized district data and a status code of 200.
+    """
+    district = District.objects.all()
+    serializer = DistrictSerializer(district, many=True)
+    return Response(serializer.data, status=200)
+
+
+@api_view(['GET'])
+def get_district_by_district_code(request, district_code):
+    """
+    Retrieve a district by its name.
+
+    Args:
+        request: The HTTP request object.
+        district_code: The id of the district to retrieve.
+
+    Returns:
+        Response: A Response object containing the serialized data of the
+        district and an HTTP status code 200.
+    Raises:
+        District.DoesNotExist: If the district is not found in the database.
+    """
+    try:
+        district = District.objects.get(name=district_code)
+        serializer = DistrictSerializer(district)
+        return Response(serializer.data, status=200)
+    except District.DoesNotExist:
+        return Response({'message': 'District not found'}, status=404)
 
 
 @api_view(['GET'])
 def get_users_districts(request):
     """
-    Retrieve the districts associated with the authenticated user.
-
-    This view handles GET requests to fetch all districts linked to the
-    currently authenticated user. If the user has no associated districts,
-    an empty list is returned. If the user does not exist, a 404 response
-    is returned.
+    Retrieve the districts associated with the current user.
 
     Args:
-        request: The HTTP request object containing user authentication details.
+        request: The HTTP request object.
 
     Returns:
-        Response: A JSON response containing a list of districts or an error message.
+        Response: JSON response containing the districts associated with the user or error
+        message id the user doesn't exist.
+    Raises:
+        User.DoesNotExist: If the user is not found in the database.
     """
     try:
         user = User.objects.get(id=request.user.id)
@@ -212,18 +216,14 @@ def get_users_districts(request):
 
 
 @api_view(['PATCH'])
-def update_users_districts(request, name):
+def update_users_districts(request, district_name):
     """
     Update the districts associated with the current user.
-
-    This view allows the authenticated user to add or remove a district
-    from their associated districts based on the provided district name
-    and action in the request data.
 
     Args:
         request (Request): The HTTP request object containing user data
             and district action.
-        name (str): The name of the district to be added or removed.
+        district_name (str): The name of the district to be added or removed.
 
     Returns:
         Response: A response object containing a success message and the
@@ -236,8 +236,8 @@ def update_users_districts(request, name):
         found in the database.
     """
     try:
-        user = User.objects.get(id=request.user.id)
-        district = District.objects.get(name=name)
+        user = User.objects.get(id=request.user.email)
+        district = District.objects.get(name=district_name)
         if 'districts' in request.data:
             districts_data = request.data['districts']
             if districts_data.get('add'):
@@ -263,20 +263,94 @@ def update_users_districts(request, name):
     except User.DoesNotExist:
         return Response({"detail": "User not found."}, status=404)
     except District.DoesNotExist:
-        return Response({"detail": f"District with name {name} not found."}, status=404)
+        return Response({"detail": f"District with name {district_name} not found."}, status=404)
+
+
+# Only admin views
+@api_view(['POST'])
+@permission_classes([IsSuperUser])
+def post_natural_disaster(request):
+    """
+    Creates a new natural disaster record.
+
+    Args:
+        request: The HTTP request object containing disaster details.
+
+    Returns:
+        Response: JSON response with the created disaster or validation errors.
+    """
+
+    serializer = NaturalDisasterSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=201)
+    return Response(serializer.errors, status=400)
+
+
+@api_view(['DELETE'])
+@permission_classes([IsSuperUser])
+def delete_natural_disaster(request, name):
+    """
+    Deletes a natural disaster by name.
+
+    Args:
+        request: The HTTP request object.
+        name (str): The name of the disaster to delete.
+
+    Returns:
+        Response: JSON response confirming deletion or error message.
+    Raises:
+        NaturalDisaster.DoesNotExist: If the natural disaster is not found in the database.
+    """
+
+    try:
+        disaster = NaturalDisaster.objects.get(name=name)
+        disaster.delete()
+        return Response({'message': f'Natural disaster {name} deleted.'}, status=200)
+    except NaturalDisaster.DoesNotExist:
+        return Response({'message': 'Natural disaster not found.'}, status=404)
+
+
+@api_view(['PATCH'])
+@permission_classes([IsSuperUser])
+def update_natural_disaster(request, name):
+    """
+    Updates a natural disaster by name.
+
+    Args:
+        request: The HTTP request object.
+        name (str): The name of the disaster to update.
+
+    Returns:
+        Response: JSON response confirming update or error message.
+    Raises:
+        NaturalDisaster.DoesNotExist: If the natural disaster is not found in the database.
+    """
+
+    try:
+        disaster = NaturalDisaster.objects.get(name=name)
+        serializer = NaturalDisasterSerializer(disaster, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=200)
+        return Response(serializer.errors, status=400)
+    except NaturalDisaster.DoesNotExist:
+        return Response({'message': 'Natural disaster not found.'}, status=404)
 
 
 @api_view(['POST'])
+@permission_classes([IsSuperUser])
 def post_district(request):
     """
     Handle POST requests to create a new District.
 
-    This view function accepts a POST request containing district data,
-    validates the data using the DistrictSerializer, and saves the new
-    district if the data is valid. Returns a 201 status code with the
-    serialized district data upon successful creation, or a 400 status
-    code with validation errors if the data is invalid.
+    Args:
+        request (Request): The HTTP request object containing district data.
+
+    Returns:
+        Response: Json response with the created district or validation errors.
     """
+
     serializer = DistrictSerializer(data=request.data)
     if serializer.is_valid():
         serializer.save()
@@ -284,20 +358,144 @@ def post_district(request):
     return Response(serializer.errors, status=400)
 
 
-@api_view(['GET'])
-def get_all_districts(request):
+@api_view(['DELETE'])
+@permission_classes([IsSuperUser])
+def delete_district(request, district_code):
     """
-    Retrieve all districts.
+    Deletes a district by name.
 
-    This view handles GET requests to fetch all district records from the database.
-    The districts are serialized and returned in the response with a status code of 200.
+    Args:
+        request: The HTTP request object.
+        district_code (str): The id of the district to delete.
+
+    Returns:
+        Response: JSON response confirming deletion or error message.
+    Raises:
+        District.DoesNotExist: If the district is not found in the database.
+    """
+
+    try:
+        district = District.objects.get(district_code=district_code)
+        district.delete()
+        return Response({'message': f'District {district.name} deleted.'}, status=200)
+    except District.DoesNotExist:
+        return Response({'message': 'District not found.'}, status=404)
+
+
+@api_view(['PATCH'])
+@permission_classes([IsSuperUser])
+def update_district(request, district_code):
+    """
+    Updates a district by name.
+
+    Args:
+        request: The HTTP request object.
+        district_code (str): The id of the district to update.
+
+    Returns:
+        Response: JSON response confirming update or error message.
+    Raises:
+        District.DoesNotExist: If the district is not found in the database.
+    """
+
+    try:
+        district = District.objects.get(district_code=district_code)
+        serializer = DistrictSerializer(district, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=200)
+        return Response(serializer.errors, status=400)
+    except District.DoesNotExist:
+        return Response({'message': 'District not found.'}, status=404)
+
+
+@api_view(['GET'])
+@permission_classes([IsSuperUser])
+def get_all_users(request):
+    """
+    Retrieve all users.
 
     Args:
         request: The HTTP request object.
 
     Returns:
-        Response: A DRF Response object containing serialized district data and a status code of 200.
+        Response: A DRF Response object containing serialized user data and a status code of 200.
     """
-    district = District.objects.all()
-    serializer = DistrictSerializer(district, many=True)
+    user = User.objects.all()
+    serializer = UserSerializer(user, many=True)
     return Response(serializer.data, status=200)
+
+
+@api_view(['GET'])
+@permission_classes([IsSuperUser])
+def get_user_by_email(request, email):
+    """
+    Retrieve a user by email.
+
+    Args:
+        request: The HTTP request object.
+        email (str): The email of the user to retrieve.
+
+    Returns:
+        Response: A Response object containing the serialized data of the
+        user and an HTTP status code 200.
+    Raises:
+        User.DoesNotExist: If the user is not found in the database.
+    """
+    try:
+        user = User.objects.get(email=email)
+        serializer = UserSerializer(user)
+        return Response(serializer.data, status=200)
+    except User.DoesNotExist:
+        return Response({'message': 'User not found.'}, status=404)
+
+
+@api_view(['DELETE'])
+@permission_classes([IsSuperUser])
+def delete_user(request, email):
+    """
+    Deletes a user by email.
+
+    Args:
+        request: The HTTP request object.
+        email (str): The email of the user to delete.
+
+    Returns:
+        Response: JSON response confirming deletion or error message.
+    Raises:
+        User.DoesNotExist: If the user is not found in the database.
+    """
+
+    try:
+        user = User.objects.get(email=email)
+        user.delete()
+        return Response({'message': f'User {email} deleted.'}, status=200)
+    except User.DoesNotExist:
+        return Response({'message': 'User not found.'}, status=404)
+
+
+@api_view(['PATCH'])
+@permission_classes([IsSuperUser])
+def update_user(request, email):
+    """
+    Updates a user by email.
+
+    Args:
+        request: The HTTP request object.
+        email (str): The email of the user to update.
+
+    Returns:
+        Response: JSON response confirming update or error message.
+    Raises:
+        User.DoesNotExist: If the user is not found in the database.
+    """
+
+    try:
+        user = User.objects.get(email=email)
+        serializer = UserSerializer(user, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=200)
+        return Response(serializer.errors, status=400)
+    except User.DoesNotExist:
+        return Response({'message': 'User not found.'}, status=404)
