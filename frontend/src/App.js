@@ -6,6 +6,7 @@ import HomePage from "./home_page/Home.js";
 import Disaster from "./disaster_page/Disaster.js";
 import Register from "./register_page/Register.js";
 import Profile from "./profile_page/Profile.js"
+import ProtectedRoute from "./authorization/ProtectedRoute.js";
 
 
 const App = () => {
@@ -14,10 +15,10 @@ const App = () => {
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/home" element={<HomePage/>}/>
-        <Route path= "/disaster" element={<Disaster/>}/>
         <Route path= "register" element= {<Register/>}/>
-        <Route path ="/profile" element={<Profile/>}/>
+        <Route path="/home" element={<ProtectedRoute><HomePage/></ProtectedRoute>}/>
+        <Route path= "/disaster" element={<ProtectedRoute><Disaster/></ProtectedRoute>}/>
+        <Route path ="/profile" element={<ProtectedRoute><Profile/></ProtectedRoute>}/>
       </Routes>
     </Router>
   );

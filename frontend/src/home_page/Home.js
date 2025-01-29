@@ -17,27 +17,29 @@ const Home = () => {
     setMenuOpen((prev) => !prev);
   };
 
-  // const handleLogout = async () => {
-  //     try {
-  //         const csrfToken = Cookies.get("csrftoken");
-  //         const response = await axios.post(
-  //             "http://localhost:8000/api/logout/",
-  //             {},
-  //             {
-  //                 withCredentials: true,
-  //                 headers: {
-  //                     "X-CSRFToken": csrfToken,
-  //                 },
-  //             }
-  //         );
+  const handleLogout = async () => {
+    try {
+      const csrfToken = Cookies.get("csrftoken");
 
-  //         console.log("Logout successful:", response);
-  //         Cookies.remove("sessionid");
-  //         navigate("/login");
-  //     } catch (error) {
-  //         console.error("Logout error:", error);
-  //     }
-  // };
+      const response = await axios.post(
+        "http://localhost:8000/api/logout/",
+        {},
+        {
+          withCredentials: true,
+          headers: {
+            "X-CSRFToken": csrfToken,
+          },
+        }
+      );
+
+      console.log("Logout successful:", response);
+
+      Cookies.remove("sessionid");
+      navigate("/");
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
+  };
 
   // Mockup data for districts
   useEffect(() => {
@@ -74,7 +76,7 @@ const Home = () => {
     <div className="app-container">
       <div className="home-container">
         <header className="header">
-          <img src={logoWithName} alt="Logo with Name" className="logo" />
+          <img src={logoWithName} alt="Logo with Name" className="info-logo" />
           <MenuOutlinedIcon className="menu-icon" onClick={toggleMenu} />
         </header>
 
@@ -85,16 +87,18 @@ const Home = () => {
 
           {districts && districts.length > 0 ? (
             districts.map((district, index) => (
-              <div
-                key={index}
-                className="info-item"
-                onClick={() => handleDisasterClick(district.disaster_name)}
-              >
+              <div key={index} className="info-item">
                 <h3>
                   {district.name}: {district.disaster_name}
                 </h3>
                 <p>
-                  Click <span>here</span> to see how to make sure you stay safe.
+                  Click{" "}
+                  <span
+                    onClick={() => handleDisasterClick(district.disaster_name)}
+                  >
+                    here
+                  </span>{" "}
+                  to see how to make sure you stay safe.
                 </p>
               </div>
             ))
@@ -141,7 +145,7 @@ const Home = () => {
               onClick={() => {
                 toggleMenu();
                 navigate("/");
-                // handleLogout();
+                handleLogout();
               }}
             >
               Log Out

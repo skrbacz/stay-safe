@@ -32,29 +32,32 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['email', 'password', 'password2']
+        fields = ['username', 'email', 'password', 'password2']
+        extra_kwargs = {'password': {'write_only': True}}
 
     def validate(self, data):
-        password = data['password']
-        password2 = data['password2']
-        if password != password2:
-            raise serializers.ValidationError("Passwords aren't the same.")
-
-        if len(password) < 8:
-            raise serializers.ValidationError("Password is too short.")
-        if not re.search(r'[A-Z]', password):
-            raise serializers.ValidationError("Password must contain at least one uppercase letter.")
-        if not re.search(r'[0-9]', password):
-            raise serializers.ValidationError("Password must contain at least one number.")
-        if not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
-            raise serializers.ValidationError("Password must contain at least one special character.")
-
+        if data['password'] != data['password2']:
+            raise serializers.ValidationError({"password": "Passwords do not match."})
         return data
+
+    def create(self, validated_data):
+        validated_data.pop('password2')
+        user = User.objects.create(username=validated_data['username'], email=validated_data['email'])
+        user.set_password(validated_data['password'])
+        user.save()
+        return user
+
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = '__all__'
+
+    def update(self, instance, validated_data):
+        if 'email' in validated_data:
+            raise serializers.ValidationError({"email": "Updating email is not allowed."})
+        return super().update(instance, validated_data)
+
 
 class DistrictSerializer(serializers.ModelSerializer):
     class Meta:

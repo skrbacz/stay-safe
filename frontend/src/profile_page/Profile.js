@@ -15,6 +15,7 @@ import illustration from "../assets/illustration.svg";
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
 import logo from "../assets/logo.svg";
 import axios from "axios";
+import Cookies from "js-cookie";
 
 const Profile = () => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -26,12 +27,11 @@ const Profile = () => {
 
   const toggleMenu = () => setMenuOpen((prev) => !prev);
 
-  
   useEffect(() => {
     const fetchDistricts = async () => {
       try {
         const response = await axios.get("/user/update/districts", {
-          withCredentials: true, 
+          withCredentials: true,
         });
         setDistricts(response.data || []);
       } catch (error) {
@@ -55,7 +55,6 @@ const Profile = () => {
   const handleDialogOpen = () => setDialogOpen(true);
   const handleDialogClose = () => setDialogOpen(false);
 
-  
   const handleAddDistrict = async () => {
     try {
       await axios.patch(
@@ -70,7 +69,6 @@ const Profile = () => {
     }
   };
 
-  
   const handleDeleteDistrict = async () => {
     try {
       await axios.patch(
@@ -87,132 +85,172 @@ const Profile = () => {
     }
   };
 
+  const handleLogout = async () => {
+    try {
+      const csrfToken = Cookies.get("csrftoken");
+
+      const response = await axios.post(
+        "http://localhost:8000/api/logout/",
+        {},
+        {
+          withCredentials: true,
+          headers: {
+            "X-CSRFToken": csrfToken,
+          },
+        }
+      );
+
+      console.log("Logout successful:", response);
+
+      Cookies.remove("sessionid");
+      navigate("/");
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
+  };
+
   return (
-    <div className="profile-container">
-      <header className="header">
-        <img src={logoWithName} alt="Logo with Name" className="logo" />
-        <MenuOutlinedIcon className="menu-icon" onClick={toggleMenu} />
-      </header>
-
-      <div className="info-container">
-        <h2>Hello *username* !</h2>
-        <a>Districts you follow: </a>
-        <div className="district-container">
-          {districts && districts.length > 0 ? (
-            districts.map((district, index) => (
-              <div key={index}>
-                <h3>• {district.name}</h3>
-              </div>
-            ))
-          ) : (
-            <div className="info-item">
-              <p>No followed districts yet!</p>
-            </div>
-          )}
-        </div>
-        <div className="button-container">
-          <b>
-            <span
-              onClick={handleDialogOpen}
-              style={{ cursor: "pointer", color: "black" }}
-            >
-              EDIT DISTRICTS YOU FOLLOW
-            </span>
-          </b>
-        </div>
-      </div>
-
-      <img
-        src={illustration}
-        alt="Footer Icon"
-        className="footer-icon-profile"
-      />
-
-      <Dialog open={dialogOpen} onClose={handleDialogClose}>
-        <DialogTitle>Edit Districts</DialogTitle>
-        <DialogContent>
-          <Autocomplete
-            disablePortal
-            options={allDistricts}
-            getOptionLabel={(option) => option.name}
-            onChange={(event, newValue) => setSelectedDistrict(newValue)}
-            sx={{ width: 300 }}
-            renderInput={(params) => (
-              <TextField {...params} label="Select a District" />
-            )}
-            value={selectedDistrict}
+    <div className="app-container">
+      <div className="profile-container">
+        <header className="header">
+          <img
+            src={logoWithName}
+            alt="Logo with Name"
+            className="profile-logo"
           />
-          <div>
-            <h4>
-              Selected District:{" "}
-              {selectedDistrict ? selectedDistrict.name : "None"}
-            </h4>
-          </div>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleDialogClose} color="secondary">
-            Cancel
-          </Button>
-          <Button
-            onClick={handleAddDistrict}
-            color="primary"
-            disabled={
-              !selectedDistrict ||
-              districts.some((d) => d.name === selectedDistrict.name)
-            }
-          >
-            Add
-          </Button>
-          <Button
-            onClick={handleDeleteDistrict}
-            color="error"
-            disabled={
-              !selectedDistrict ||
-              !districts.some((d) => d.name === selectedDistrict.name)
-            }
-          >
-            Delete
-          </Button>
-        </DialogActions>
-      </Dialog>
+          <MenuOutlinedIcon className="menu-icon" onClick={toggleMenu} />
+        </header>
 
-      {menuOpen && <div className="menu-overlay" onClick={toggleMenu} />}
-      <div className={`slide-menu ${menuOpen ? "open" : ""}`}>
-        <div className="top-rectangle">
-          <img src={logo} alt="Logo" className="menu-logo" />
+        <div className="user-info-container">
+          <h2>Hello *username* !</h2>
+          <a>Districts you follow: </a>
+          <div className="district-container">
+            {districts && districts.length > 0 ? (
+              districts.map((district, index) => (
+                <div key={index}>
+                  <h3>• {district.name}</h3>
+                </div>
+              ))
+            ) : (
+              <div className="user-info-item">
+                <p>No followed districts yet!</p>
+              </div>
+            )}
+          </div>
+          <div className="button-container">
+            <b>
+              <span
+                onClick={handleDialogOpen}
+                style={{ cursor: "pointer", color: "black" }}
+              >
+                EDIT DISTRICTS YOU FOLLOW
+              </span>
+            </b>
+          </div>
         </div>
-        <button className="close-btn" onClick={toggleMenu}>
-          ✕
-        </button>
-        <div className="menu-content">
-          <div
-            className="menu-item"
-            onClick={() => {
-              toggleMenu();
-              navigate("/disaster");
-            }}
-          >
-            Search Disaster →
+
+        <img
+          src={illustration}
+          alt="Footer Icon"
+          className="footer-icon-profile"
+        />
+
+        <Dialog open={dialogOpen} onClose={handleDialogClose}>
+          <DialogTitle>Edit Districts</DialogTitle>
+          <DialogContent>
+            <Autocomplete
+              disablePortal
+              options={allDistricts}
+              getOptionLabel={(option) => option.name}
+              onChange={(event, newValue) => setSelectedDistrict(newValue)}
+              sx={{ width: 300 }}
+              renderInput={(params) => (
+                <TextField {...params} label="Select a District" />
+              )}
+              value={selectedDistrict}
+            />
+            <div>
+              <h4>
+                Selected District:{" "}
+                {selectedDistrict ? selectedDistrict.name : "None"}
+              </h4>
+            </div>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleDialogClose} color="secondary">
+              Cancel
+            </Button>
+            <Button
+              onClick={handleAddDistrict}
+              color="primary"
+              disabled={
+                !selectedDistrict ||
+                districts.some((d) => d.name === selectedDistrict.name)
+              }
+            >
+              Add
+            </Button>
+            <Button
+              onClick={handleDeleteDistrict}
+              color="error"
+              disabled={
+                !selectedDistrict ||
+                !districts.some((d) => d.name === selectedDistrict.name)
+              }
+            >
+              Delete
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        {menuOpen && <div className="menu-overlay" onClick={toggleMenu} />}
+        <div className={`slide-menu ${menuOpen ? "open" : ""}`}>
+          <div className="top-rectangle">
+            <img src={logo} alt="Logo" className="menu-logo" />
           </div>
-          <div
-            className="menu-item"
-            onClick={() => {
-              toggleMenu();
-              navigate("/profile");
-            }}
-          >
-            Profile →
-          </div>
-          <button
-            className="logout-btn"
-            onClick={() => {
-              toggleMenu();
-              navigate("/");
-              // handleLogout();
-            }}
-          >
-            Log Out
+          <button className="close-btn" onClick={toggleMenu}>
+            ✕
           </button>
+          <div className="menu-content">
+            <div
+              className="menu-item"
+              onClick={() => {
+                toggleMenu();
+                navigate("/disaster");
+              }}
+            >
+              Search Disaster →
+            </div>
+
+            <div
+              className="menu-item"
+              onClick={() => {
+                toggleMenu();
+                navigate("/home");
+              }}
+            >
+              Home →
+            </div>
+
+            <div
+              className="menu-item"
+              onClick={() => {
+                toggleMenu();
+                navigate("/profile");
+              }}
+            >
+              Profile →
+            </div>
+            <button
+              className="logout-btn"
+              onClick={() => {
+                toggleMenu();
+                handleLogout();
+              }}
+            >
+              Log Out
+            </button>
+          </div>
         </div>
       </div>
     </div>
