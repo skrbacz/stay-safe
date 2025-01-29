@@ -1,15 +1,12 @@
 from django.contrib.auth import login, logout, authenticate
-from django.http import JsonResponse
-from django.urls import reverse
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
-from django.views.decorators.csrf import csrf_exempt
+
 from emergency_app.models import NaturalDisaster, User, District
 from emergency_app.permissions import IsSuperUser
-from emergency_app.serializers import NaturalDisasterSerializer, LoginSerializer, RegisterSerializer, \
+from emergency_app.serializers import NaturalDisasterSerializer, RegisterSerializer, \
     DistrictSerializer, UserSerializer
-
 
 
 @api_view(['GET'])
