@@ -11,6 +11,7 @@
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
     "axios": "^1.7.9",
+    "chalk": "^5.4.1",
     "formik": "^2.4.6",
     "js-cookie": "^3.0.5",
     "js-cookies": "^1.0.4",

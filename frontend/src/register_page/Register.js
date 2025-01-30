@@ -1,6 +1,9 @@
 import React from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
+import { useNavigate } from "react-router-dom";
 import * as Yup from "yup";
+import axios from "axios";
+import Cookies from "js-cookie";
 import "./Register.css";
 import logo from "../assets/logo.svg";
 
@@ -9,8 +12,10 @@ const Register = () => {
     username: "",
     email: "",
     password: "",
-    confirmPassword: "",
+    password2: "", // Change 'confirmPassword' to 'password2' to match the backend
   };
+
+  const navigate = useNavigate();
 
   const validationSchema = Yup.object({
     username: Yup.string()
@@ -22,15 +27,44 @@ const Register = () => {
     password: Yup.string()
       .min(6, "Password must be at least 6 characters")
       .required("Password is required"),
-    confirmPassword: Yup.string()
+    password2: Yup.string()
       .oneOf([Yup.ref("password"), null], "Passwords must match")
       .required("Confirm password is required"),
   });
 
-  const handleSubmit = (values, { setSubmitting }) => {
-    console.log("Registration data:", values);
-    setSubmitting(false);
-    alert("Registration successful!");
+  const handleSubmit = async (values, { setSubmitting, setErrors }) => {
+    try {
+      const csrfToken = Cookies.get("csrftoken");
+
+      const response = await axios.post(
+        "http://localhost:8000/api/register/", // Ensure this is the correct endpoint for registration
+        {
+          username: values.username,
+          email: values.email,
+          password: values.password,
+          password2: values.password2, // Pass the confirmation password as 'password2'
+        },
+        {
+          withCredentials: true,
+          headers: {
+            "X-CSRFToken": csrfToken || "", // CSRF protection
+          },
+        }
+      );
+
+      if (response.status === 201) {
+        alert("Registration successful! Please log in.");
+        navigate("/login"); // Redirect to login page after successful registration
+      }
+    } catch (error) {
+      if (error.response && error.response.data) {
+        setErrors({ email: error.response.data.detail || "An error occurred during registration." });
+      } else {
+        alert("An error occurred during registration.");
+      }
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -43,10 +77,10 @@ const Register = () => {
         >
           {({ isSubmitting }) => (
             <Form className="registration-form">
-                <div className="register-header">
-                    <img src={logo} alt={logo} className="register-logo" />
-                    <h1 className="register-title">StaySafe</h1>
-                </div>
+              <div className="register-header">
+                <img src={logo} alt={logo} className="register-logo" />
+                <h1 className="register-title">StaySafe</h1>
+              </div>
 
               <div className="register-form-group">
                 <label htmlFor="username">Username</label>
@@ -94,15 +128,15 @@ const Register = () => {
               </div>
 
               <div className="register-form-group">
-                <label htmlFor="confirmPassword">Confirm password</label>
+                <label htmlFor="password2">Confirm password</label>
                 <Field
                   type="password"
-                  id="confirmPassword"
-                  name="confirmPassword"
+                  id="password2"
+                  name="password2" // This is now 'password2' to match the API request
                   placeholder="Confirm password"
                 />
                 <ErrorMessage
-                  name="confirmPassword"
+                  name="password2"
                   component="div"
                   className="error-message"
                 />
