@@ -31,12 +31,15 @@ const Profile = () => {
     const fetchDistricts = async () => {
       try {
         const csrfToken = Cookies.get("csrftoken");
-        const response = await axios.get("http://localhost:8000/api/user/districts", {
-          withCredentials: true,
-          headers: {
-            "X-CSRFToken": csrfToken || "",
-          },
-        });
+        const response = await axios.get(
+          "http://localhost:8000/api/user/districts",
+          {
+            withCredentials: true,
+            headers: {
+              "X-CSRFToken": csrfToken || "",
+            },
+          }
+        );
         setDistricts(response.data || []);
       } catch (error) {
         console.error("Error fetching user's districts:", error);
@@ -46,12 +49,15 @@ const Profile = () => {
     const fetchAllDistricts = async () => {
       try {
         const csrfToken = Cookies.get("csrftoken");
-        const response = await axios.get("http://localhost:8000/api/district/", {
-          withCredentials: true,
-          headers: {
-            "X-CSRFToken": csrfToken || "",
-          },
-        });
+        const response = await axios.get(
+          "http://localhost:8000/api/district/",
+          {
+            withCredentials: true,
+            headers: {
+              "X-CSRFToken": csrfToken || "",
+            },
+          }
+        );
         setAllDistricts(response.data || []);
       } catch (error) {
         console.error("Error fetching all districts:", error);
@@ -71,7 +77,8 @@ const Profile = () => {
       await axios.patch(
         `http://localhost:8000/api/user/update/districts/${selectedDistrict.name}/`,
         { districts: { add: [selectedDistrict.name] } }, // Pass district name inside an array
-        { withCredentials: true,
+        {
+          withCredentials: true,
           headers: {
             "X-CSRFToken": csrfToken || "",
           },
@@ -90,19 +97,22 @@ const Profile = () => {
       await axios.patch(
         `http://localhost:8000/api/user/update/districts/${selectedDistrict.name}/`,
         { districts: { remove: [selectedDistrict.name] } }, // Send the name inside an array
-        { withCredentials: true,
+        {
+          withCredentials: true,
           headers: {
             "X-CSRFToken": csrfToken || "",
           },
         }
       );
-  
-      setDistricts((prev) => prev.filter((d) => d.name !== selectedDistrict.name));
+
+      setDistricts((prev) =>
+        prev.filter((d) => d.name !== selectedDistrict.name)
+      );
       setDialogOpen(false);
     } catch (error) {
       console.error("Error removing district:", error);
     }
-  };  
+  };
 
   const handleLogout = async () => {
     try {
@@ -249,16 +259,6 @@ const Profile = () => {
               }}
             >
               Home →
-            </div>
-
-            <div
-              className="menu-item"
-              onClick={() => {
-                toggleMenu();
-                navigate("/profile");
-              }}
-            >
-              Profile →
             </div>
             <button
               className="logout-btn"
