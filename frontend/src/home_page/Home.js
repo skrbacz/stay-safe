@@ -32,10 +32,9 @@ const Home = () => {
     "Opady marznące": "Freezing rain",
   };
 
-
   const [loading, setLoading] = useState(true); // Loading state
   const [menuOpen, setMenuOpen] = useState(false);
-  const [districts, setDistricts] = useState([])
+  const [districts, setDistricts] = useState([]);
   const navigate = useNavigate();
   const toggleMenu = () => {
     setMenuOpen((prev) => !prev);
@@ -68,10 +67,13 @@ const Home = () => {
   const fetchDistricts = async () => {
     try {
       const csrfToken = Cookies.get("csrftoken");
-      const response = await axios.get("http://localhost:8000/api/user/districts", {
-        withCredentials: true,
-        headers: { "X-CSRFToken": csrfToken || "" },
-      });
+      const response = await axios.get(
+        "http://localhost:8000/api/user/districts",
+        {
+          withCredentials: true,
+          headers: { "X-CSRFToken": csrfToken || "" },
+        }
+      );
       const data = response.data || [];
       setDistricts(data);
       return data;
@@ -84,15 +86,25 @@ const Home = () => {
 
   const handleGetIMGWDisasters = async (districtsData) => {
     try {
-      const response = await axios.get("https://danepubliczne.imgw.pl/api/data/warningsmeteo");
-      const fetchedDisasters = response.data.map(({ teryt, nazwa_zdarzenia }) => ({
-        id: teryt,
-        disaster: nazwa_zdarzenia,
-      }));
+      const response = await axios.get(
+        "https://danepubliczne.imgw.pl/api/data/warningsmeteo"
+      );
+      const fetchedDisasters = response.data.map(
+        ({ teryt, nazwa_zdarzenia }) => ({
+          id: teryt,
+          disaster: nazwa_zdarzenia,
+        })
+      );
 
       const updatedDistricts = districtsData.map((district) => {
-        const disaster = fetchedDisasters.find((d) => d.id.includes(district.id));
-        const translated = translateValues(disaster, ["disaster"], valueTranslationMap);
+        const disaster = fetchedDisasters.find((d) =>
+          d.id.includes(district.id)
+        );
+        const translated = translateValues(
+          disaster,
+          ["disaster"],
+          valueTranslationMap
+        );
         return {
           ...district,
           disaster: translated?.disaster || "No Disasters",
@@ -103,7 +115,10 @@ const Home = () => {
     } catch (error) {
       if (error.response?.status === 404) {
         // Handle 404 by setting all districts to "No Disasters"
-        const safeDistricts = districtsData.map((d) => ({ ...d, disaster: "No Disasters" }));
+        const safeDistricts = districtsData.map((d) => ({
+          ...d,
+          disaster: "No Disasters",
+        }));
         setDistricts(safeDistricts);
       } else {
         console.error("Error fetching disasters:", error);
@@ -140,30 +155,22 @@ const Home = () => {
           </h2>
 
           {districts && districts.length > 0 ? (
-            districts.map((district, index) => (
-              <div
-                key={index}
-                className="info-item"
-                onClick={() => handleDisasterClick(district.disaster)}
-              >
-                <h3>
-                  {district.name}: {district.disaster}
-                </h3>
+          districts.map((district, index) => (
+            <div key={index} className="info-item">
+              <h3>
+                {district.name}: {district.disaster}
+              </h3>
+              {district.disaster !== "No Disasters" && (
                 <p>
-                  Click{" "}
-                  <span
-                    onClick={() => handleDisasterClick(district.disaster_name)}
-                  >
-                    here
-                  </span>{" "}
-                  to see how to make sure you stay safe.
+                  Click <span onClick={() => handleDisasterClick(district.disaster_name)}>here</span> to see how to make sure you stay safe.
                 </p>
-              </div>
-            ))
-          ) : (
+              )}
+            </div>
+          ))
+        )  : (
             <div className="info-item">
               <p>
-                Click <span>here</span> to add a district you want to follow.
+                No district followed.
               </p>
             </div>
           )}
