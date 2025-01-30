@@ -28,8 +28,8 @@ urlpatterns = [
     path('user/<str:email>/', views.get_user_by_email, name='user_one'),
     path('user/delete/<str:email>/', views.delete_user, name='delete_user'),
     path('user/update/<str:email>/', views.update_user, name='update_user'),
-    path('user/update/districts', views.update_users_districts, name='update_users_districts'),
-    path('user/districts/', views.get_users_districts, name='get_users_districts'),
+    path('user/update/districts/<str:district_name>/', views.update_users_districts, name='update_users_districts'),
+    path('user/districts', views.get_users_districts, name='get_users_districts'),
 
 ]
 

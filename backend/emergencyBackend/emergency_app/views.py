@@ -212,7 +212,9 @@ def get_users_districts(request):
         User.DoesNotExist: If the user is not found in the database.
     """
     try:
-        user = User.objects.get(id=request.user.id)
+        user = User.objects.get(email=request.user.email)
+        print(request.user)
+        print(user)
         districts = user.districts.all()
         if not districts:
             return Response([], status=200)

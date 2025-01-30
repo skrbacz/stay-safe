@@ -30,8 +30,12 @@ const Profile = () => {
   useEffect(() => {
     const fetchDistricts = async () => {
       try {
-        const response = await axios.get("/api/user/districts/", {
+        const csrfToken = Cookies.get("csrftoken");
+        const response = await axios.get("http://localhost:8000/api/user/districts", {
           withCredentials: true,
+          headers: {
+            "X-CSRFToken": csrfToken || "",
+          },
         });
         setDistricts(response.data || []);
       } catch (error) {
@@ -41,7 +45,13 @@ const Profile = () => {
 
     const fetchAllDistricts = async () => {
       try {
-        const response = await axios.get("/api/district/");
+        const csrfToken = Cookies.get("csrftoken");
+        const response = await axios.get("http://localhost:8000/api/district/", {
+          withCredentials: true,
+          headers: {
+            "X-CSRFToken": csrfToken || "",
+          },
+        });
         setAllDistricts(response.data || []);
       } catch (error) {
         console.error("Error fetching all districts:", error);
@@ -57,10 +67,15 @@ const Profile = () => {
 
   const handleAddDistrict = async () => {
     try {
+      const csrfToken = Cookies.get("csrftoken");
       await axios.patch(
-        `/user/update/districts/${selectedDistrict.name}`,
+        `http://localhost:8000/api/user/update/districts/${selectedDistrict.name}/`,
         { districts: { add: [selectedDistrict.name] } }, // Pass district name inside an array
-        { withCredentials: true }
+        { withCredentials: true,
+          headers: {
+            "X-CSRFToken": csrfToken || "",
+          },
+        }
       );
       setDistricts((prev) => [...prev, selectedDistrict]); // Update state
       setDialogOpen(false);
@@ -71,10 +86,15 @@ const Profile = () => {
 
   const handleDeleteDistrict = async () => {
     try {
+      const csrfToken = Cookies.get("csrftoken");
       await axios.patch(
-        `/user/update/districts/${selectedDistrict.name}`,
+        `http://localhost:8000/api/user/update/districts/${selectedDistrict.name}`,
         { districts: { remove: [selectedDistrict.name] } }, // Send the name inside an array
-        { withCredentials: true }
+        { withCredentials: true,
+          headers: {
+            "X-CSRFToken": csrfToken || "",
+          },
+        }
       );
   
       setDistricts((prev) => prev.filter((d) => d.name !== selectedDistrict.name));
@@ -121,7 +141,7 @@ const Profile = () => {
         </header>
 
         <div className="user-info-container">
-          <h2>Hello *username* !</h2>
+          <h2>Hello!</h2>
           <a>Districts you follow: </a>
           <div className="district-container">
             {districts && districts.length > 0 ? (
