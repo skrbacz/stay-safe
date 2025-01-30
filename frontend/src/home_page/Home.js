@@ -35,33 +35,8 @@ const Home = () => {
 
   const [loading, setLoading] = useState(true); // Loading state
   const [menuOpen, setMenuOpen] = useState(false);
-  const [districts, setDistricts] = useState(null);
-  // mock data for districts:
-  // const [districts, setDistricts] = useState([
-  //   { id: "0220", name: "trzebnicki", disaster: "" },
-  //   { id: "0223", name: "wrocławski", disaster: "" },
-  //   { id: "1821", name: "leski", disaster: "" },
-  //   { id: "1861", name: "Krosno", disaster: "" },
-  // ]);
-
-  const fetchDistricts = async () => {
-  try {
-    const csrfToken = Cookies.get("csrftoken");
-    const response = await axios.get("http://localhost:8000/api/user/districts", {
-      withCredentials: true,
-      headers: {
-        "X-CSRFToken": csrfToken || "",
-      },
-    });
-
-    setDistricts(response.data || []);
-  } catch (error) {
-    console.error("Error fetching user's districts:", error);
-  }
-}
-
+  const [districts, setDistricts] = useState([])
   const navigate = useNavigate();
-
   const toggleMenu = () => {
     setMenuOpen((prev) => !prev);
   };
@@ -90,77 +65,60 @@ const Home = () => {
     }
   };
 
-  const handleGetIMGWDisasters = async () => {
-    const finalDistricts = [];
+  const fetchDistricts = async () => {
     try {
-      const response = await (
-        axios.get("https://danepubliczne.imgw.pl/api/data/warningsmeteo")
-      );
+      const csrfToken = Cookies.get("csrftoken");
+      const response = await axios.get("http://localhost:8000/api/user/districts", {
+        withCredentials: true,
+        headers: { "X-CSRFToken": csrfToken || "" },
+      });
+      const data = response.data || [];
+      setDistricts(data);
+      return data;
+    } catch (error) {
+      console.error("Error fetching districts:", error);
+      setDistricts([]);
+      return [];
+    }
+  };
 
-      const fetchedDistricts = [];
-      console.log("Disasters fetched successfully:", response.data);
-      response.data.forEach((element) => {
-        const districtid = element.teryt;
-        const districtDisaster = element.nazwa_zdarzenia;
+  const handleGetIMGWDisasters = async (districtsData) => {
+    try {
+      const response = await axios.get("https://danepubliczne.imgw.pl/api/data/warningsmeteo");
+      const fetchedDisasters = response.data.map(({ teryt, nazwa_zdarzenia }) => ({
+        id: teryt,
+        disaster: nazwa_zdarzenia,
+      }));
 
-        fetchedDistricts.push({
-          id: districtid,
-          disaster: districtDisaster,
-        });
+      const updatedDistricts = districtsData.map((district) => {
+        const disaster = fetchedDisasters.find((d) => d.id.includes(district.id));
+        const translated = translateValues(disaster, ["disaster"], valueTranslationMap);
+        return {
+          ...district,
+          disaster: translated?.disaster || "No Disasters",
+        };
       });
 
-      console.log("API districts:", fetchedDistricts);
-
-      if (districts.data && Array.isArray(districts.data)) {
-        districts.data.forEach((district) => {
-          const selectedDistrict = fetchedDistricts.find((disaster) =>
-            disaster.id.includes(district.id)
-          );
-
-          const translatedDistrict = translateValues(
-            selectedDistrict,
-            ["disaster"],
-            valueTranslationMap
-          );
-
-          finalDistricts.push({
-            id: district.id,
-            name: district.name,
-            disaster: translatedDistrict
-              ? translatedDistrict.disaster
-              : "No Disasters",
-          });
-        });
-        setDistricts(finalDistricts);
-      } else {
-        console.warn("No districts data available or invalid format:", districts);
-      }
+      setDistricts(updatedDistricts);
     } catch (error) {
-      if (error.response && error.response.status === 404) {
-        districts.forEach((element) => {
-          finalDistricts.push({
-            id: element.id,
-            name: element.name,
-            disaster: "No Disasters",
-          });
-        });
-        console.log("final districts:", finalDistricts);
-        setDistricts(finalDistricts);
+      if (error.response?.status === 404) {
+        // Handle 404 by setting all districts to "No Disasters"
+        const safeDistricts = districtsData.map((d) => ({ ...d, disaster: "No Disasters" }));
+        setDistricts(safeDistricts);
       } else {
         console.error("Error fetching disasters:", error);
       }
     } finally {
-      setLoading(false); // Stop loading after the API calls are completed
+      setLoading(false);
     }
   };
 
-
   useEffect(() => {
-    // Fetch districts first
-    fetchDistricts().then(() => {
-      // Then fetch disasters once the districts are fetched
-      handleGetIMGWDisasters();
-    });
+    const fetchData = async () => {
+      const districtsData = await fetchDistricts();
+      await handleGetIMGWDisasters(districtsData);
+    };
+    fetchData();
   }, []);
 
   const handleDisasterClick = (disasterName) => {
