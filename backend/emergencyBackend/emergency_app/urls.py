@@ -2,7 +2,20 @@ from django.urls import path
 from . import views
 from django.conf.urls.static import static
 from django.conf import settings
+from drf_yasg.views import get_schema_view
+from drf_yasg import openapi
+from rest_framework.permissions import AllowAny
 
+schema_view = get_schema_view(
+    openapi.Info(
+        title="My API",
+        default_version='v1',
+        description="API documentation for Stay Safe project",
+    ),
+    public=True,
+    permission_classes=(AllowAny,),
+    authentication_classes=[],
+)
 
 urlpatterns = [
     path('login/', views.login_user, name='login_user'),
@@ -23,7 +36,6 @@ urlpatterns = [
     path('district/delete/<str:district_code>/', views.delete_district, name='delete_district'),
     path('district/update/<str:district_code>/', views.update_district, name='update_district'),
 
-
     path('user/', views.get_all_users, name='get_all_users'),
     path('user/<str:email>/', views.get_user_by_email, name='user_one'),
     path('user/delete/<str:email>/', views.delete_user, name='delete_user'),
@@ -31,6 +43,8 @@ urlpatterns = [
     path('user/update/districts/<str:district_name>/', views.update_users_districts, name='update_users_districts'),
     path('user/districts', views.get_users_districts, name='get_users_districts'),
 
+    path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
+    path('swagger.json', schema_view.without_ui(cache_timeout=0), name='schema-json'),
 ]
 
 if settings.DEBUG:

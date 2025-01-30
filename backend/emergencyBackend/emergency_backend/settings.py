@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'emergency_app',
     'rest_framework',
     'corsheaders',
+    'drf_yasg',
 ]
 
 MIDDLEWARE = [
