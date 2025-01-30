@@ -88,7 +88,7 @@ const Profile = () => {
     try {
       const csrfToken = Cookies.get("csrftoken");
       await axios.patch(
-        `http://localhost:8000/api/user/update/districts/${selectedDistrict.name}`,
+        `http://localhost:8000/api/user/update/districts/${selectedDistrict.name}/`,
         { districts: { remove: [selectedDistrict.name] } }, // Send the name inside an array
         { withCredentials: true,
           headers: {

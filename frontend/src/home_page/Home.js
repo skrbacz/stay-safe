@@ -32,15 +32,34 @@ const Home = () => {
     "Opady marznące": "Freezing rain",
   };
 
+
+  const [loading, setLoading] = useState(true); // Loading state
   const [menuOpen, setMenuOpen] = useState(false);
-  // const [districts, setDistricts] = useState(null);
+  const [districts, setDistricts] = useState(null);
   // mock data for districts:
-  const [districts, setDistricts] = useState([
-    { id: "0220", name: "trzebnicki", disaster: "" },
-    { id: "0223", name: "wrocławski", disaster: "" },
-    { id: "1821", name: "leski", disaster: "" },
-    { id: "1861", name: "Krosno", disaster: "" },
-  ]);
+  // const [districts, setDistricts] = useState([
+  //   { id: "0220", name: "trzebnicki", disaster: "" },
+  //   { id: "0223", name: "wrocławski", disaster: "" },
+  //   { id: "1821", name: "leski", disaster: "" },
+  //   { id: "1861", name: "Krosno", disaster: "" },
+  // ]);
+
+  const fetchDistricts = async () => {
+  try {
+    const csrfToken = Cookies.get("csrftoken");
+    const response = await axios.get("http://localhost:8000/api/user/districts", {
+      withCredentials: true,
+      headers: {
+        "X-CSRFToken": csrfToken || "",
+      },
+    });
+
+    setDistricts(response.data || []);
+  } catch (error) {
+    console.error("Error fetching user's districts:", error);
+  }
+}
+
   const navigate = useNavigate();
 
   const toggleMenu = () => {
@@ -74,9 +93,10 @@ const Home = () => {
   const handleGetIMGWDisasters = async () => {
     const finalDistricts = [];
     try {
-      const response = await axios.get(
-        "https://danepubliczne.imgw.pl/api/data/warningsmeteo"
+      const response = await (
+        axios.get("https://danepubliczne.imgw.pl/api/data/warningsmeteo")
       );
+
       const fetchedDistricts = [];
       console.log("Disasters fetched successfully:", response.data);
       response.data.forEach((element) => {
@@ -89,29 +109,32 @@ const Home = () => {
         });
       });
 
-      console.log("api districts:", fetchedDistricts);
+      console.log("API districts:", fetchedDistricts);
 
-      districts.forEach((element) => {
-        const selectedDistrict = fetchedDistricts.find((disaster) =>
-          disaster.id.includes(element.id)
-        );
-        const translatedDistrict = translateValues(
-          selectedDistrict,
-          ["disaster"],
-          valueTranslationMap
-        );
-        console.log("current district:", selectedDistrict);
-        finalDistricts.push({
-          id: element.id,
-          name: element.name,
-          disaster: translatedDistrict
-            ? translatedDistrict.disaster
-            : "No Disasters",
+      if (districts.data && Array.isArray(districts.data)) {
+        districts.data.forEach((district) => {
+          const selectedDistrict = fetchedDistricts.find((disaster) =>
+            disaster.id.includes(district.id)
+          );
+
+          const translatedDistrict = translateValues(
+            selectedDistrict,
+            ["disaster"],
+            valueTranslationMap
+          );
+
+          finalDistricts.push({
+            id: district.id,
+            name: district.name,
+            disaster: translatedDistrict
+              ? translatedDistrict.disaster
+              : "No Disasters",
+          });
         });
-      });
-
-      console.log("final districts:", finalDistricts);
-      setDistricts(finalDistricts);
+        setDistricts(finalDistricts);
+      } else {
+        console.warn("No districts data available or invalid format:", districts);
+      }
     } catch (error) {
       if (error.response && error.response.status === 404) {
         districts.forEach((element) => {
@@ -126,11 +149,18 @@ const Home = () => {
       } else {
         console.error("Error fetching disasters:", error);
       }
+    } finally {
+      setLoading(false); // Stop loading after the API calls are completed
     }
   };
 
+
   useEffect(() => {
-    handleGetIMGWDisasters();
+    // Fetch districts first
+    fetchDistricts().then(() => {
+      // Then fetch disasters once the districts are fetched
+      handleGetIMGWDisasters();
+    });
   }, []);
 
   const handleDisasterClick = (disasterName) => {
