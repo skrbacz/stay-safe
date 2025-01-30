@@ -15,4 +15,19 @@ class Migration(migrations.Migration):
             name='district_code',
             field=models.TextField(default='1602', primary_key=True, serialize=False),
         ),
+        migrations.AddField(
+            model_name='user',
+            name='is_active',
+            field=models.BooleanField(default=True),
+        ),
+        migrations.AddField(
+            model_name='user',
+            name='is_staff',
+            field=models.BooleanField(default=False),
+        ),
+        migrations.AddField(
+            model_name='user',
+            name='is_superuser',
+            field=models.BooleanField(default=False),
+        ),
     ]

@@ -39,4 +39,14 @@ class Migration(migrations.Migration):
             name='name',
             field=models.CharField(max_length=250),
         ),
+        migrations.AddField(
+            model_name='user',
+            name='is_staff',
+            field=models.BooleanField(default=False),
+        ),
+        migrations.AddField(
+            model_name='user',
+            name='is_superuser',
+            field=models.BooleanField(default=False),
+        ),
     ]

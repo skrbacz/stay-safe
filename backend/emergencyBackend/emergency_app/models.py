@@ -19,7 +19,7 @@ class NaturalDisaster(models.Model):
     def __str__(self):
         return self.name
 
-
+#Ready for future development
 class NaturalDisasterInDistrict(models.Model):
     id = models.AutoField(primary_key=True)
     natural_disaster = models.ForeignKey(NaturalDisaster, on_delete=models.CASCADE)
@@ -51,7 +51,11 @@ class User(AbstractBaseUser):
     email = models.EmailField(unique=True)
     username = models.CharField(max_length=100)
     hashed_password = models.CharField(max_length=255)
-    district = models.ForeignKey(District, null=True, blank=True, on_delete=models.SET_NULL)
+    districts = models.ManyToManyField("District", blank=True)
+
+    is_active = models.BooleanField(default=True)
+    is_staff = models.BooleanField(default=False)
+    is_superuser = models.BooleanField(default=False)
 
     objects = UserManager()
     USERNAME_FIELD = 'email'

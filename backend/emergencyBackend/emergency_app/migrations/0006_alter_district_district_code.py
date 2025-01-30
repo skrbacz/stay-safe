@@ -10,9 +10,26 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AlterField(
+        migrations.RemoveField(
+            model_name='user',
+            name='is_active',
+        ),
+        migrations.RemoveField(
+            model_name='user',
+            name='is_staff',
+        ),
+        migrations.RemoveField(
+            model_name='user',
+            name='is_superuser',
+        ),
+        migrations.AddField(
             model_name='district',
             name='district_code',
-            field=models.TextField(default='1602', max_length=4, primary_key=True, serialize=False),
+            field=models.TextField(default='1602', primary_key=True, serialize=False),
+        ),
+        migrations.AlterField(
+            model_name='district',
+            name='name',
+            field=models.CharField(max_length=250),
         ),
     ]

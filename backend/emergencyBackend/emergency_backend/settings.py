@@ -15,7 +15,6 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
@@ -25,8 +24,8 @@ SECRET_KEY = 'django-insecure-z+o)vcz3%#-*(kzswxdpbt^+^jv4jw8c_j(6)a9(3=ng!#__0l
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = [
+]
 
 # Application definition
 
@@ -74,21 +73,19 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'emergency_backend.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
     'default': {
-    'ENGINE': 'django.db.backends.postgresql',
-    'NAME': 'postgres', # change to your database name
-    'USER': 'postgres.tzgmcbocopnmctqihqay', # change to your username
-    'PASSWORD': '!EmergencyDB123', # change to your user password
-    'HOST': 'aws-0-eu-central-1.pooler.supabase.com',
-    'PORT': '5432', # change only if you changed the default port
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'postgres',  # change to your database name
+        'USER': 'postgres.tzgmcbocopnmctqihqay',  # change to your username
+        'PASSWORD': '!EmergencyDB123',  # change to your user password
+        'HOST': 'aws-0-eu-central-1.pooler.supabase.com',
+        'PORT': '5432',  # change only if you changed the default port
+    }
 }
-}
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -108,7 +105,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
@@ -120,7 +116,6 @@ USE_I18N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
@@ -131,23 +126,6 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-#only for when we dont need auth
-CSRF_COOKIE_SECURE = False
-
-CSRF_TRUSTED_ORIGINS = [
-    'http://localhost:8000',
-    'http://127.0.0.1:8000',
-]
-
-REST_FRAMEWORK = {
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.AllowAny',  # Allow access without authentication
-    ],
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        # No authentication needed for now
-    ],
-}
-
 # Password hashers
 PASSWORD_HASHERS = [
     'django.contrib.auth.hashers.PBKDF2PasswordHasher',
@@ -157,30 +135,40 @@ PASSWORD_HASHERS = [
 
 AUTH_USER_MODEL = 'emergency_app.User'
 
+# Authentication settings
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+}
+
+# Session settings
+SESSION_COOKIE_AGE = 60 * 60 * 24 * 14
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+SESSION_SAVE_EVERY_REQUEST = False
+
+SESSION_COOKIE_SECURE = False
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SAMESITE = 'Lax'
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+
+# CSRF settings
+CSRF_COOKIE_HTTPONLY = False
+CSRF_COOKIE_SAMESITE = 'Lax'
+CSRF_COOKIE_SECURE = False
+
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:3000",  # React frontend
+    "http://localhost:8000",  # Django backend
+]
 
 CORS_ORIGIN_WHITELIST = [
     "http://localhost:3000",
+    "http://localhost:8000",
 ]
 CORS_ALLOW_CREDENTIALS = True
-CORS_ALLOW_HEADERS = [
-    'content-type',
-    'X-CSRFToken',
-    'Authorization',
-]
 
-# Session
-SESSION_COOKIE_AGE = 60 * 60 * 24 * 30
-SESSION_EXPIRE_AT_BROWSER_CLOSE = False
-SESSION_COOKIE_NAME = "sessionid"
-SESSION_COOKIE_HTTPONLY = True
-SESSION_COOKIE_SAMESITE = 'None'
-SESSION_COOKIE_SECURE = True
-
-# CSRF
-CSRF_COOKIE_NAME = "csrftoken"
-CSRF_COOKIE_HTTPONLY = False
-CSRF_COOKIE_SAMESITE = 'None'
-CSRF_COOKIE_SECURE = True
-CSRF_TRUSTED_ORIGINS = [
-    "http://localhost:3000",  # React frontend URL
-]
+CORS_ALLOW_ALL = True

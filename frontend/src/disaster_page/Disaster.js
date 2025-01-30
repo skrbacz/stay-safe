@@ -2,13 +2,19 @@ import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import "./Disaster.css";
 import logo_name from "../assets/logo_with_name.svg";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import logo from "../assets/logo.svg";
+import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
+import Cookies from "js-cookie";
 
 const Disaster = () => {
   const location = useLocation();
   const initialDisaster = location.state?.selectedDisaster || "Select Disaster";
   const [disasterOptions, setDisasterOptions] = useState(['']);
   const [selectedDisaster, setSelectedDisaster] = useState(initialDisaster);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const navigate = useNavigate();
   const [disastersDetails, setDisastersDetails] = useState({
     name: '',
     description: '',
@@ -28,12 +34,14 @@ const Disaster = () => {
 
   useEffect(() => {
     handleGetDisasters();
-  });
+  }, []);
 
   const handleGetDisasters = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:8000/api/natural_disaster/"
+        "http://localhost:8000/api/natural_disaster/", {
+          withCredentials: true, 
+        }
       );
 
       console.log("Disasters fetched successfully:", response.data);
@@ -83,13 +91,19 @@ const Disaster = () => {
     const selectedDetail = disastersDetails.find(
       (event) => event.name === selectedDisaster
     );
+
+    if (!selectedDetail) {
+      console.warn("Selected disaster not found:", select);
+      return;
+    }
+
     setSelectedDisasterDetails(
-      selectedDetail ? selectedDetail.description : null
+      selectedDetail.description
     );
-    const toDos = selectedDetail ? selectedDetail.tasks.split(";") : null;
-    
-    console.log("tasks: ", toDos, typeof(toDos));
-    console.log(toDos)
+    const toDos = selectedDetail.tasks.split(";");
+
+    console.log("tasks: ", toDos, typeof toDos);
+    console.log(toDos);
     setToDoList(
       Array.from({ length: toDos.length }, (_, index) => ({
         id: index,
@@ -100,6 +114,30 @@ const Disaster = () => {
     console.log("selected disaster after: ", selectedDisaster);
   };
 
+  const handleLogout = async () => {
+    try {
+      const csrfToken = Cookies.get("csrftoken");
+
+      const response = await axios.post(
+        "http://localhost:8000/api/logout/",
+        {},
+        {
+          withCredentials: true,
+          headers: {
+            "X-CSRFToken": csrfToken,
+          },
+        }
+      );
+
+      console.log("Logout successful:", response);
+
+      Cookies.remove("sessionid");
+      navigate("/");
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
+  };
+
   const toggleComplete = (id) => {
     const updatedToDos = toDoList.map((todo) =>
       todo.id === id ? { ...todo, completed: !todo.completed } : todo
@@ -107,11 +145,14 @@ const Disaster = () => {
     setToDoList(updatedToDos);
   };
 
+  const toggleMenu = () => {
+    setMenuOpen((prev) => !prev);
+  };
   return (
     <div className="disaster-container">
       <header className="header">
         <img src={logo_name} alt={logo_name} className="disaster-logo" />
-        <div className="menu-icon">☰</div>
+        <MenuOutlinedIcon className="menu-icon" onClick={toggleMenu} />
       </header>
       <main className="main-content">
         {/* Dropdown menu for the disaster title */}
@@ -147,6 +188,45 @@ const Disaster = () => {
           </div>
         </section>
       </main>
+      {menuOpen && <div className="menu-overlay" onClick={toggleMenu} />}
+      <div className={`slide-menu ${menuOpen ? "open" : ""}`}>
+        <div className="top-rectangle">
+          <img src={logo} alt="Logo" className="menu-logo" />
+        </div>
+        <button className="close-btn" onClick={toggleMenu}>
+          ✕
+        </button>
+        <div className="menu-content">
+          <div
+            className="menu-item"
+            onClick={() => {
+              toggleMenu();
+              navigate("/home");
+            }}
+          >
+            Home →
+          </div>
+
+          <div
+            className="menu-item"
+            onClick={() => {
+              toggleMenu();
+              navigate("/profile");
+            }}
+          >
+            Profile →
+          </div>
+          <button
+            className="logout-btn"
+            onClick={() => {
+              toggleMenu();
+              handleLogout();
+            }}
+          >
+            Log Out
+          </button>
+        </div>
+      </div>
     </div>
   );
 };

@@ -9,11 +9,7 @@ import logo_with_name from "../assets/logo_with_name.svg";
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 
-function getCookie(name) {
-  const value = `; ${document.cookie}`;
-  const parts = value.split(`; ${name}=`);
-  if (parts.length === 2) return parts.pop().split(";").shift();
-}
+
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false); // State for password visibility
@@ -39,7 +35,7 @@ const Login = () => {
 
   const handleSubmit = async (values, { setSubmitting, setErrors }) => {
     try {
-      const csrfToken = getCookie("csrftoken");
+      const csrfToken = Cookies.get("csrftoken");
 
       const response = await axios.post(
         "http://localhost:8000/api/login/",
@@ -56,16 +52,8 @@ const Login = () => {
       );
 
       if (response.status === 200) {
-        const userIdResponse = await axios.get(
-          `http://localhost:8000/api/get_user_id/${values.email}/`
-        );
-        if (userIdResponse.status === 200) {
-          const userId = userIdResponse.data.user_id;
-          Cookies.set("user_id", userId, { expires: 7 });
-        }
-
         alert("Login successful!");
-        navigate("/navigation");
+        navigate("/home");
       }
     } catch (error) {
       if (error.response && error.response.data) {

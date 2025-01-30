@@ -15,4 +15,9 @@ class Migration(migrations.Migration):
             name='district_code',
             field=models.CharField(default='1602', max_length=4, primary_key=True, serialize=False),
         ),
+        migrations.AddField(
+            model_name='user',
+            name='is_active',
+            field=models.BooleanField(default=True),
+        ),
     ]
