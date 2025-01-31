@@ -32,7 +32,7 @@ Stay Safe is a web mobile-first application designed to help users stay informed
 
 1. Clone the repository:
    ```sh
-   git clone https://github.com/your-repo/StaySafe
+   git clone https://github.com/skrbacz/stay-safe.git
    cd StaySafe
    ```
 
