@@ -222,12 +222,6 @@ const Disaster = () => {
         </div>
         <div className="description-box">{selectedDisasterDetails}</div>
   
-        {/* Show the disaster ID for debugging */}
-        <div className="disaster-id">
-          <strong>Disaster ID: </strong>{selectedDisasterId}
-        </div>
-  
-        {/* Switch for Save to history */}
         <div className="save-to-history-container">
           <label>Save to history</label>
           <Switch
@@ -236,21 +230,6 @@ const Disaster = () => {
             inputProps={{ 'aria-label': 'Save to history switch' }}
           />
         </div>
-  
-        {/* If the switch is on, show note and save button */}
-        {saveToHistory && (
-          <div>
-            <textarea
-              placeholder="Add a note"
-              value={note}
-              onChange={handleNoteChange}
-              className="note-input"
-            ></textarea>
-            <button onClick={handleSaveHistory} className="save-btn">
-              Save
-            </button>
-          </div>
-        )}
   
         <h2 className="todo-title">To-Do List: Stay prepared</h2>
         <section className="todo-section">
@@ -267,6 +246,20 @@ const Disaster = () => {
             ))}
           </div>
         </section>
+  
+        {saveToHistory && (
+          <div className="note-section">
+            <textarea
+              placeholder="Add a note"
+              value={note}
+              onChange={handleNoteChange}
+              className="note-input"
+            ></textarea>
+            <button onClick={handleSaveHistory} className="save-btn">
+              Save
+            </button>
+          </div>
+        )}
       </main>
       {menuOpen && <div className="menu-overlay" onClick={() => setMenuOpen(false)} />}
       <div className={`slide-menu ${menuOpen ? "open" : ""}`}>
