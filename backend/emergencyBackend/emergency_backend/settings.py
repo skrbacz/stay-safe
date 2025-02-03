@@ -136,6 +136,7 @@ PASSWORD_HASHERS = [
 
 AUTH_USER_MODEL = 'emergency_app.User'
 
+
 # Authentication settings
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [

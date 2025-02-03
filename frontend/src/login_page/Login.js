@@ -52,15 +52,12 @@ const Login = () => {
       );
 
       if (response.status === 200) {
-        alert("Login successful!");
         navigate("/home");
       }
     } catch (error) {
       if (error.response && error.response.data) {
         setErrors({ email: "Incorrect email or password" });
-      } else {
-        alert("An error occurred during login.");
-      }
+      } 
     } finally {
       setSubmitting(false);
     }

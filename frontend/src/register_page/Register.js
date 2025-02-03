@@ -53,15 +53,12 @@ const Register = () => {
       );
 
       if (response.status === 201) {
-        alert("Registration successful! Please log in.");
-        navigate("/login"); // Redirect to login page after successful registration
+        navigate("/login"); 
       }
     } catch (error) {
       if (error.response && error.response.data) {
         setErrors({ email: error.response.data.detail || "An error occurred during registration." });
-      } else {
-        alert("An error occurred during registration.");
-      }
+      } 
     } finally {
       setSubmitting(false);
     }

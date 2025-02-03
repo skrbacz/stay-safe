@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
 import Login from "./login_page/Login";
 import Landing from "./landing_page/landing.js";
 import HomePage from "./home_page/Home.js";
@@ -19,6 +19,7 @@ const App = () => {
         <Route path="/home" element={<ProtectedRoute><HomePage/></ProtectedRoute>}/>
         <Route path= "/disaster" element={<ProtectedRoute><Disaster/></ProtectedRoute>}/>
         <Route path ="/profile" element={<ProtectedRoute><Profile/></ProtectedRoute>}/>
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
   );

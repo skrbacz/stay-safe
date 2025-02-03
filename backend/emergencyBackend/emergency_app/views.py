@@ -2,12 +2,11 @@ from django.contrib.auth import login, logout, authenticate
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
-
-from emergency_app.models import NaturalDisaster, User, District
+from emergency_app.models.district import District
+from emergency_app.models.natural_disaster import NaturalDisaster
+from emergency_app.models.user import User
 from emergency_app.permissions import IsSuperUser
-from emergency_app.serializers import NaturalDisasterSerializer, RegisterSerializer, \
-    DistrictSerializer, UserSerializer
-
+from emergency_app.serializers import UserSerializer, DistrictSerializer, NaturalDisasterSerializer, RegisterSerializer
 
 @api_view(['GET'])
 @permission_classes([AllowAny])

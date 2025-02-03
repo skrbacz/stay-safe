@@ -27,7 +27,7 @@ const Home = () => {
   const valueTranslationMap = {
     "Silny wiatr": "Strong wind",
     "Opady śniegu": "Snowfall",
-    Przymrozki: "Frosts",
+    "Oblodzenie": "Frosts",
     "Gęsta mgła": "Thick fog",
     "Opady marznące": "Freezing rain",
   };
