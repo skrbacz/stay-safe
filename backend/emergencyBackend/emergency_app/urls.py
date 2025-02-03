@@ -25,7 +25,7 @@ urlpatterns = [
     path('', views.landing_page, name='landing_page'),
 
     path('natural_disaster/', views.get_all_natural_disasters, name='get_all_natural_disasters'),
-    path('natural_disaster/<str:name>/', views.get_natural_disaster_by_name, name='natural_disaster_one'),
+    path('natural_disaster/<int:id>/', views.get_natural_disaster_by_id, name='natural_disaster_one'),
     path('natural_disaster/create', views.post_natural_disaster, name='post_natural_disaster'),
     path('natural_disaster/delete/<str:name>/', views.delete_natural_disaster, name='delete_natural_disaster'),
     path('natural_disaster/update/<str:name>/', views.update_natural_disaster, name='update_natural_disaster'),
@@ -42,6 +42,8 @@ urlpatterns = [
     path('user/update/<str:email>/', views.update_user, name='update_user'),
     path('user/update/districts/<str:district_name>/', views.update_users_districts, name='update_users_districts'),
     path('user/districts', views.get_users_districts, name='get_users_districts'),
+
+    path('disaster_history/create', views.post_disaster_history, name='post_disaster_history'),
 
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('swagger.json', schema_view.without_ui(cache_timeout=0), name='schema-json'),

@@ -1,5 +1,7 @@
 from django.contrib.auth import authenticate
 from rest_framework import serializers
+
+from emergency_app.models.disaster_history import DisasterHistory
 from emergency_app.models.district import District
 from emergency_app.models.natural_disaster import NaturalDisaster
 from emergency_app.models.user import User
@@ -62,4 +64,10 @@ class UserSerializer(serializers.ModelSerializer):
 class DistrictSerializer(serializers.ModelSerializer):
     class Meta:
         model = District
+        fields = '__all__'
+
+
+class DisasterHistorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DisasterHistory
         fields = '__all__'

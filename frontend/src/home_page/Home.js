@@ -27,7 +27,7 @@ const Home = () => {
   const valueTranslationMap = {
     "Silny wiatr": "Strong wind",
     "Opady śniegu": "Snowfall",
-    "Oblodzenie": "Frosts",
+    Oblodzenie: "Frosts",
     "Gęsta mgła": "Thick fog",
     "Opady marznące": "Freezing rain",
   };
@@ -35,6 +35,7 @@ const Home = () => {
   const [loading, setLoading] = useState(true); // Loading state
   const [menuOpen, setMenuOpen] = useState(false);
   const [districts, setDistricts] = useState([]);
+  const [initialDisaster, setInitialDisaster] = useState(null);
   const navigate = useNavigate();
   const toggleMenu = () => {
     setMenuOpen((prev) => !prev);
@@ -64,7 +65,7 @@ const Home = () => {
     }
   };
 
-  const fetchDistricts = async () => {
+  /* const fetchDistricts = async () => {
     try {
       const csrfToken = Cookies.get("csrftoken");
       const response = await axios.get(
@@ -82,9 +83,9 @@ const Home = () => {
       setDistricts([]);
       return [];
     }
-  };
+  }; */
 
-  const handleGetIMGWDisasters = async (districtsData) => {
+  /* const handleGetIMGWDisasters = async (districtsData) => {
     try {
       const response = await axios.get(
         "https://danepubliczne.imgw.pl/api/data/warningsmeteo"
@@ -126,19 +127,45 @@ const Home = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }; */
 
   useEffect(() => {
     const fetchData = async () => {
-      const districtsData = await fetchDistricts();
-      await handleGetIMGWDisasters(districtsData);
+      // Mockup data for districts
+      const districtsData = [
+        { id: "ostrzeszowski", name: "Ostrzeszów" },
+        { id: "wroclaw", name: "Wrocław" },
+        { id: "piotrkow_trybunalski", name: "Piotrków Trybunalski" },
+        { id: "trzebnicki", name: "Trzebnica" },
+      ];
+  
+      // Mockup data for disasters with disaster_id included
+      const mockupDisasters = [
+        { id: "ostrzeszowski", disaster: "Strong Wind", disaster_id: 8 },
+        { id: "wroclaw", disaster: "Snowfall", disaster_id: 9 },
+        { id: "piotrkow_trybunalski", disaster: "Frosts", disaster_id: 10 },
+        { id: "trzebnicki", disaster: "Thick Fog", disaster_id: 11 },
+      ];
+  
+      const updatedDistricts = districtsData.map((district) => {
+        const disaster = mockupDisasters.find((d) => d.id === district.id);
+        return {
+          ...district,
+          disaster: disaster?.disaster || "No Disasters",
+          disaster_id: disaster?.disaster_id || null,  // Adding disaster_id to district
+        };
+      });
+  
+      setDistricts(updatedDistricts);
+      setLoading(false);
     };
     fetchData();
   }, []);
 
-  const handleDisasterClick = (disasterName) => {
-    // Navigate to the disaster page with the disaster name
-    navigate("/disaster", { state: { selectedDisaster: disasterName } });
+  const handleDisasterClick = (disasterName, disasterId) => {
+    setInitialDisaster(disasterName);
+    console.log("home disaster:", disasterName, disasterId); 
+    navigate("/disaster", { state: { selectedDisaster: disasterName, disasterId: disasterId } });
   };
 
   return (
@@ -155,23 +182,27 @@ const Home = () => {
           </h2>
 
           {districts && districts.length > 0 ? (
-          districts.map((district, index) => (
-            <div key={index} className="info-item">
-              <h3>
-                {district.name}: {district.disaster}
-              </h3>
-              {district.disaster !== "No Disasters" && (
-                <p>
-                  Click <span onClick={() => handleDisasterClick(district.disaster_name)}>here</span> to see how to make sure you stay safe.
-                </p>
-              )}
-            </div>
-          ))
-        )  : (
+            districts.map((district, index) => (
+              <div key={index} className="info-item">
+                <h3>
+                  {district.name}: {district.disaster}
+                </h3>
+                {district.disaster !== "No Disasters" && (
+                  <p>
+                    Click{" "}
+                    <span
+                      onClick={() => handleDisasterClick(district.disaster, district.disaster_id)}
+                    >
+                      here
+                    </span>{" "}
+                    to see how to make sure you stay safe.
+                  </p>
+                )}
+              </div>
+            ))
+          ) : (
             <div className="info-item">
-              <p>
-                No district followed.
-              </p>
+              <p>No district followed.</p>
             </div>
           )}
         </div>

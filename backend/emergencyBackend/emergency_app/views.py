@@ -1,4 +1,5 @@
 from django.contrib.auth import login, logout, authenticate
+from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
@@ -6,7 +7,9 @@ from emergency_app.models.district import District
 from emergency_app.models.natural_disaster import NaturalDisaster
 from emergency_app.models.user import User
 from emergency_app.permissions import IsSuperUser
-from emergency_app.serializers import UserSerializer, DistrictSerializer, NaturalDisasterSerializer, RegisterSerializer
+from emergency_app.serializers import UserSerializer, DistrictSerializer, NaturalDisasterSerializer, RegisterSerializer, \
+    DisasterHistorySerializer
+
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
@@ -135,7 +138,7 @@ def get_all_natural_disasters(request):
 
 
 @api_view(['GET'])
-def get_natural_disaster_by_name(request, name=None):
+def get_natural_disaster_by_id(request, id=None):
     """
     Retrieve a natural disaster by its name.
 
@@ -150,7 +153,7 @@ def get_natural_disaster_by_name(request, name=None):
         NaturalDisaster.DoesNotExist: If the natural disaster is not found in the database.
     """
     try:
-        disaster = NaturalDisaster.objects.get(name=name)
+        disaster = NaturalDisaster.objects.get(id=id)
         serializer = NaturalDisasterSerializer(disaster)
         return Response(serializer.data, status=200)
     except NaturalDisaster.DoesNotExist:
@@ -275,6 +278,32 @@ def update_users_districts(request, district_name):
         return Response({"detail": "User not found."}, status=404)
     except District.DoesNotExist:
         return Response({"detail": f"District '{district_name}' not found."}, status=404)
+
+
+@api_view(['POST'])
+def post_disaster_history(request):
+    """
+    Creates a new disaster history record, automatically assigning the user
+    from the session or authentication.
+
+    Args:
+        request: The HTTP request object containing disaster history details.
+
+    Returns:
+        Response: JSON response with the created disaster history or validation errors.
+    """
+    # Check if the user is authenticated
+    if not request.user.is_authenticated:
+        return Response({"error": "Authentication required"}, status=status.HTTP_401_UNAUTHORIZED)
+
+    # Attach the authenticated user to the request data before passing to the serializer
+    request.data['user_id'] = request.user.id  # Automatically set the user_id from the session user
+
+    serializer = DisasterHistorySerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=201)
+    return Response(serializer.errors, status=400)
 
 # Only admin views
 @api_view(['POST'])
