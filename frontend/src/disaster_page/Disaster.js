@@ -168,10 +168,7 @@ const Disaster = () => {
 
   const handleSaveHistory = async () => {
     const csrfToken = Cookies.get("csrftoken");
-    
-    // Log the CSRF token to verify it's being retrieved correctly
-    console.log("CSRF Token:", csrfToken);
-    
+        
     // Format the to-do list with X or O
     const formattedTodoList = toDoList
       .map((todo) => {
@@ -179,17 +176,11 @@ const Disaster = () => {
       })
       .join("; ");
     
-    // Log the formatted to-do list
-    console.log("Formatted To-Do List:", formattedTodoList);
-    console.log("Selected Disaster ID:", selectedDisasterId);
     const payload = {
-      disaster_id: selectedDisasterId,  // Ensure this ID is correctly set
+      disaster_id: selectedDisasterId,  
       todo_list: formattedTodoList,
       note: note,
     };
-    
-    // Log the payload to verify it's being sent correctly
-    console.log("Payload to save:", payload);
     
     try {
       const response = await axios.post(
