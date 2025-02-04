@@ -292,12 +292,8 @@ def post_disaster_history(request):
     Returns:
         Response: JSON response with the created disaster history or validation errors.
     """
-    # Check if the user is authenticated
-    if not request.user.is_authenticated:
-        return Response({"error": "Authentication required"}, status=status.HTTP_401_UNAUTHORIZED)
 
-    # Attach the authenticated user to the request data before passing to the serializer
-    request.data['user_id'] = request.user.id  # Automatically set the user_id from the session user
+    request.data['user_id'] = request.user.id
 
     serializer = DisasterHistorySerializer(data=request.data)
     if serializer.is_valid():
